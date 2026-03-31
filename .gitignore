@@ -137,3 +137,10 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Podcast skill secrets
+skills/.env
+
+# Podcast skill generated output
+podcast-scripts/
+podcast-mp3s/
