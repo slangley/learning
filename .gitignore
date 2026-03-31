@@ -144,3 +144,8 @@ skills/.env
 # Podcast skill generated output
 podcast-scripts/
 podcast-mp3s/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
