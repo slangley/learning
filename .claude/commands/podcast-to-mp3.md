@@ -1,6 +1,6 @@
 ---
 name: podcast-to-mp3
-description: Convert a podcast script file to an MP3 using text-to-speech and upload it to an S3 bucket. Arguments: "<path-to-script> [--s3-bucket <bucket>] [--s3-prefix <prefix>]" (e.g. "podcast-scripts/ai-2024-06-01.md --s3-bucket my-podcasts")
+description: Convert a podcast script file to an MP3 using text-to-speech and upload it to an S3 bucket. Arguments: "<path-to-script> [--voice <name>] [--model <id>] [--s3-bucket <bucket>] [--s3-prefix <prefix>]" (e.g. "podcast-scripts/ai-2024-06-01.md --voice brian --model eleven_v3")
 version: 2.0.0
 allowed-tools:
   - Bash
@@ -18,6 +18,8 @@ The user's arguments are: **$ARGUMENTS**
 
 Parse as follows:
 - **Script path**: the first argument (required) — path to the markdown script file
+- **Voice**: value after `--voice` (default: `george`). Available voices: george, rachel, dave, josh, adam, sam, sarah, brian, lily, matilda, antoni, arnold, domi. Can also be a raw ElevenLabs voice ID.
+- **Model**: value after `--model` (default: `eleven_v3`)
 - **S3 bucket**: value after `--s3-bucket` (default: `$S3_BUCKET` env var)
 - **S3 prefix**: value after `--s3-prefix` (default: `podcasts/`)
 
@@ -85,7 +87,8 @@ Run the Python helper script:
 python skills/podcast_to_mp3.py \
   --script "<script-path>" \
   --output "<output-mp3-path>" \
-  --dropbox-folder "<dropbox-folder>"
+  --voice "<voice>" \
+  --model "<model>"
 ```
 
 Where `<output-mp3-path>` mirrors the script path but with a `.mp3` extension inside a `podcast-mp3s/` directory (create it if needed).

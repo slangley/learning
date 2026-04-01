@@ -86,14 +86,30 @@ def extract_spoken_text(script_path: Path) -> str:
 # Text-to-speech (ElevenLabs)
 # ---------------------------------------------------------------------------
 
-DEFAULT_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"  # George
-DEFAULT_MODEL_ID = "eleven_turbo_v2_5"
+VOICES = {
+    "george":  "JBFqnCBsd6RMkjVDRZzb",
+    "rachel":  "21m00Tcm4TlvDq8ikWAM",
+    "dave":    "CYw3kZ02Hs0563khs1Fj",
+    "josh":    "TxGEqnHWrfWFTfGW9XjX",
+    "adam":    "pNInz6obpgDQGcFmaJgB",
+    "sam":     "yoZ06aMxZJJ28mfd3POQ",
+    "sarah":   "EXAVITQu4vr4xnSDxMaL",
+    "brian":   "nPczCjzI2devNBz1zQrb",
+    "lily":    "pFZP5JQG7iQjIQuC4Bku",
+    "matilda": "XrExE9yKIg1WjnnlVkGX",
+    "antoni":  "ErXwobaYiN019PkySvjV",
+    "arnold":  "VR6AewLTigWG4xSOukaG",
+    "domi":    "AZnzlk1XvdvUeBnXmlld",
+}
+
+DEFAULT_VOICE = "george"
+DEFAULT_MODEL_ID = "eleven_v3"
 
 
 def text_to_mp3(
     text: str,
     output_path: Path,
-    voice_id: str = DEFAULT_VOICE_ID,
+    voice_id: str = VOICES[DEFAULT_VOICE],
     model_id: str = DEFAULT_MODEL_ID,
 ) -> None:
     """Convert *text* to an MP3 file at *output_path* using ElevenLabs."""
@@ -194,10 +210,11 @@ def parse_args() -> argparse.Namespace:
         default=os.environ.get("S3_PREFIX", "podcasts/"),
         help="Key prefix (folder) inside the S3 bucket (default: podcasts/).",
     )
+    voice_names = ", ".join(VOICES.keys())
     parser.add_argument(
         "--voice",
-        default=DEFAULT_VOICE_ID,
-        help=f"ElevenLabs voice ID (default: {DEFAULT_VOICE_ID} — George).",
+        default=DEFAULT_VOICE,
+        help=f"Voice name or ElevenLabs voice ID. Available voices: {voice_names} (default: {DEFAULT_VOICE}).",
     )
     parser.add_argument(
         "--model",
@@ -231,8 +248,19 @@ def main() -> None:
     approx_minutes = round(word_count / 130, 1)
     print(f"📝 {word_count} words extracted (~{approx_minutes} min at 130 wpm)")
 
+    # --- Resolve voice name to ID ---
+    voice_input = args.voice.lower()
+    if voice_input in VOICES:
+        voice_id = VOICES[voice_input]
+        print(f"🎙️  Voice: {voice_input} ({voice_id})")
+    else:
+        # Treat as a raw voice ID
+        voice_id = args.voice
+        print(f"🎙️  Voice ID: {voice_id}")
+    print(f"🤖 Model: {args.model}")
+
     # --- TTS conversion ---
-    text_to_mp3(text, output_path, voice_id=args.voice, model_id=args.model)
+    text_to_mp3(text, output_path, voice_id=voice_id, model_id=args.model)
 
     # --- S3 upload ---
     if args.no_upload:
