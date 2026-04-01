@@ -1,2 +1,2 @@
-gtts>=2.5.0
-dropbox>=12.0.0
+elevenlabs>=1.0.0
+boto3>=1.26.0

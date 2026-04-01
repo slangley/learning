@@ -1,16 +1,16 @@
 ---
 name: podcast-to-mp3
-description: Convert a podcast script file to an MP3 using text-to-speech and upload it to a Dropbox folder. Arguments: "<path-to-script> [--dropbox-folder <folder>]" (e.g. "podcast-scripts/ai-2024-06-01.md --dropbox-folder /Podcasts")
-version: 1.0.0
+description: Convert a podcast script file to an MP3 using text-to-speech and upload it to an S3 bucket. Arguments: "<path-to-script> [--s3-bucket <bucket>] [--s3-prefix <prefix>]" (e.g. "podcast-scripts/ai-2024-06-01.md --s3-bucket my-podcasts")
+version: 2.0.0
 allowed-tools:
   - Bash
   - Read
   - Write
 ---
 
-# Podcast Script → MP3 Converter & Dropbox Uploader
+# Podcast Script → MP3 Converter & S3 Uploader
 
-Convert a podcast script to an MP3 file with text-to-speech, then upload the result to Dropbox.
+Convert a podcast script to an MP3 file with text-to-speech, then upload the result to S3.
 
 ## Input parsing
 
@@ -18,28 +18,43 @@ The user's arguments are: **$ARGUMENTS**
 
 Parse as follows:
 - **Script path**: the first argument (required) — path to the markdown script file
-- **Dropbox folder**: value after `--dropbox-folder` (default: `/Podcasts`)
+- **S3 bucket**: value after `--s3-bucket` (default: `$S3_BUCKET` env var)
+- **S3 prefix**: value after `--s3-prefix` (default: `podcasts/`)
 
 ## Pre-flight checks
 
 Before running the conversion, verify the environment is ready:
 
-1. Check that `skills/requirements.txt` exists. If not, inform the user to run `pip install gtts dropbox` manually.
-2. Check that the `DROPBOX_ACCESS_TOKEN` environment variable is set (or a `.env` file exists in `skills/`). If missing, print setup instructions (see below) and stop.
-3. Read the script file. If it doesn't exist, stop with a clear error message.
+1. Check that `skills/requirements.txt` exists. If not, inform the user to run `pip install elevenlabs boto3` manually.
+2. Check that the `ELEVENLABS_API_KEY` environment variable is set (or a `.env` file exists in `skills/`). If missing, print setup instructions (see below) and stop.
+3. Check that either `S3_BUCKET` is set or `--s3-bucket` is passed. If missing, print S3 setup instructions and stop.
+4. Read the script file. If it doesn't exist, stop with a clear error message.
 
-### Setup instructions (if env var is missing)
+### Setup instructions (if ElevenLabs key is missing)
 
 ```
-To enable Dropbox uploads you need a Dropbox access token:
+To enable text-to-speech you need an ElevenLabs API key:
 
-1. Go to https://www.dropbox.com/developers/apps and create a new app.
-2. Under "Permissions" enable: files.content.write, files.content.read.
-3. Generate an access token on the Settings tab.
-4. Add it to skills/.env:
-     DROPBOX_ACCESS_TOKEN=your_token_here
-     DROPBOX_FOLDER=/Podcasts
-5. Re-run this skill.
+1. Go to https://elevenlabs.io/app/settings/api-keys and create an API key.
+2. Add it to skills/.env:
+     ELEVENLABS_API_KEY=your_key_here
+3. Re-run this skill.
+```
+
+### Setup instructions (if S3 bucket is missing)
+
+```
+To enable S3 uploads you need an S3 bucket and AWS credentials:
+
+1. Add your bucket name to skills/.env:
+     S3_BUCKET=your-bucket-name
+     S3_PREFIX=podcasts/
+2. Add AWS credentials (or use ~/.aws/credentials / IAM role):
+     AWS_ACCESS_KEY_ID=your_key_id
+     AWS_SECRET_ACCESS_KEY=your_secret
+     AWS_REGION=us-east-1
+3. Ensure the IAM user/role has s3:PutObject on the bucket.
+4. Re-run this skill.
 ```
 
 ## Step 1 — Install dependencies (if needed)

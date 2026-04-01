@@ -22,22 +22,33 @@ script, and convert it to an MP3 that gets automatically uploaded to Dropbox.
 pip install -r skills/requirements.txt
 ```
 
-### 2. Set up Dropbox credentials
+### 2. Set up ElevenLabs credentials
 
-1. Go to <https://www.dropbox.com/developers/apps> and create a **Scoped access** app.
-2. Under **Permissions**, enable:
-   - `files.content.write`
-   - `files.content.read`
-3. On the **Settings** tab, click **Generate** under *OAuth 2 → Generated access token*.
-4. Copy `skills/.env.example` to `skills/.env`:
+1. Go to <https://elevenlabs.io/app/settings/api-keys> and create an API key.
+2. Copy `skills/.env.example` to `skills/.env`:
    ```bash
    cp skills/.env.example skills/.env
    ```
-5. Open `skills/.env` and paste your token:
+3. Open `skills/.env` and paste your key:
    ```
-   DROPBOX_ACCESS_TOKEN=sl.xxxxxxxxxxxxxxxx...
-   DROPBOX_FOLDER=/Podcasts
+   ELEVENLABS_API_KEY=your_key_here
    ```
+
+### 3. Set up AWS credentials
+
+Add your S3 bucket name to `skills/.env`:
+```
+S3_BUCKET=your-bucket-name-here
+S3_PREFIX=podcasts/
+```
+
+For AWS credentials, either add them to `skills/.env`:
+```
+AWS_ACCESS_KEY_ID=your_key_id
+AWS_SECRET_ACCESS_KEY=your_secret
+AWS_REGION=us-east-1
+```
+Or use any standard boto3 credential source (`~/.aws/credentials`, IAM role, etc.) — the script will pick them up automatically.
 
 > **Security note:** `skills/.env` is listed in `.gitignore` and will never be committed.
 
@@ -98,9 +109,9 @@ pip install -r skills/requirements.txt
 **What happens:**
 
 1. The skill reads the script and strips out production cues (`[MUSIC]`, `[PAUSE]`, etc.).
-2. The spoken text is converted to speech using Google Text-to-Speech (gTTS).
+2. The spoken text is converted to speech using ElevenLabs (George voice, `eleven_turbo_v2_5` model by default).
 3. The resulting MP3 is saved to `podcast-mp3s/<filename>.mp3`.
-4. The MP3 is uploaded to your configured Dropbox folder.
+4. The MP3 is uploaded to your configured S3 bucket.
 
 ---
 
@@ -128,9 +139,11 @@ python skills/podcast_to_mp3.py \
 |------|---------|-------------|
 | `--script` | *(required)* | Path to podcast script markdown file |
 | `--output` | *(required)* | Output path for the MP3 |
-| `--dropbox-folder` | `/Podcasts` | Dropbox destination folder |
-| `--lang` | `en` | BCP 47 language code for TTS |
-| `--no-upload` | `false` | Skip Dropbox upload (local test mode) |
+| `--s3-bucket` | `$S3_BUCKET` | S3 bucket to upload the MP3 to |
+| `--s3-prefix` | `podcasts/` | Key prefix (folder) inside the bucket |
+| `--voice` | `JBFqnCBsd6RMkjVDRZzb` (George) | ElevenLabs voice ID |
+| `--model` | `eleven_turbo_v2_5` | ElevenLabs model ID |
+| `--no-upload` | `false` | Skip S3 upload (local test mode) |
 
 ---
 
@@ -159,8 +172,9 @@ podcast-mp3s/              ← Generated MP3 files (auto-created)
 
 | Problem | Fix |
 |---------|-----|
-| `gTTS is not installed` | Run `pip install -r skills/requirements.txt` |
-| `DROPBOX_ACCESS_TOKEN is not set` | Create `skills/.env` from `.env.example` |
-| `Invalid Dropbox access token` | Regenerate the token in the Dropbox developer portal |
-| `Dropbox upload failed: ApiError` | Check folder permissions and token scopes |
+| `elevenlabs is not installed` | Run `pip install -r skills/requirements.txt` |
+| `ELEVENLABS_API_KEY is not set` | Add the key to `skills/.env` (see setup above) |
+| `S3_BUCKET is not set` | Add `S3_BUCKET=your-bucket` to `skills/.env` or pass `--s3-bucket` |
+| `S3 upload failed: NoCredentialsError` | Add AWS credentials to `skills/.env` or configure `~/.aws/credentials` |
+| `S3 upload failed: ClientError` | Check bucket name, region, and IAM permissions (`s3:PutObject`) |
 | Script has no spoken text | Ensure the script contains `[HOST] ...` lines |

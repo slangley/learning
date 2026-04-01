@@ -2,15 +2,19 @@
 """
 podcast_to_mp3.py
 -----------------
-Convert a podcast script (markdown) to an MP3 file using Google Text-to-Speech
-(gTTS), then upload the resulting file to a Dropbox folder.
+Convert a podcast script (markdown) to an MP3 file using ElevenLabs text-to-speech,
+then upload the resulting file to an S3 bucket.
 
 Usage:
-    python podcast_to_mp3.py --script <path> --output <path> [--dropbox-folder <folder>]
+    python podcast_to_mp3.py --script <path> --output <path> [--s3-bucket <bucket>] [--s3-prefix <prefix>]
 
 Environment variables (or .env file in the same directory as this script):
-    DROPBOX_ACCESS_TOKEN   Required. Dropbox API access token.
-    DROPBOX_FOLDER         Optional. Destination folder in Dropbox (default: /Podcasts).
+    ELEVENLABS_API_KEY     Required. ElevenLabs API key.
+    S3_BUCKET              Required. S3 bucket name.
+    S3_PREFIX              Optional. Key prefix inside the bucket (default: podcasts/).
+    AWS_ACCESS_KEY_ID      Optional. Falls back to ~/.aws/credentials or IAM role.
+    AWS_SECRET_ACCESS_KEY  Optional. Falls back to ~/.aws/credentials or IAM role.
+    AWS_REGION             Optional. AWS region (default: us-east-1).
 """
 
 import argparse
@@ -79,67 +83,87 @@ def extract_spoken_text(script_path: Path) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Text-to-speech (gTTS)
+# Text-to-speech (ElevenLabs)
 # ---------------------------------------------------------------------------
 
-def text_to_mp3(text: str, output_path: Path, lang: str = "en") -> None:
-    """Convert *text* to an MP3 file at *output_path* using gTTS."""
+DEFAULT_VOICE_ID = "JBFqnCBsd6RMkjVDRZzb"  # George
+DEFAULT_MODEL_ID = "eleven_turbo_v2_5"
+
+
+def text_to_mp3(
+    text: str,
+    output_path: Path,
+    voice_id: str = DEFAULT_VOICE_ID,
+    model_id: str = DEFAULT_MODEL_ID,
+) -> None:
+    """Convert *text* to an MP3 file at *output_path* using ElevenLabs."""
     try:
-        from gtts import gTTS  # type: ignore[import]
+        from elevenlabs import ElevenLabs  # type: ignore[import]
     except ImportError:
         sys.exit(
-            "❌  gTTS is not installed. Run: pip install gtts"
+            "❌  elevenlabs is not installed. Run: pip install elevenlabs"
+        )
+
+    api_key = os.environ.get("ELEVENLABS_API_KEY", "")
+    if not api_key:
+        sys.exit(
+            "❌  ELEVENLABS_API_KEY is not set.\n"
+            "    Add it to skills/.env or export it as an environment variable.\n"
+            "    Get a key at https://elevenlabs.io/app/settings/api-keys"
         )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    tts = gTTS(text=text, lang=lang, slow=False)
-    tts.save(str(output_path))
+    client = ElevenLabs(api_key=api_key)
+    audio = client.text_to_speech.convert(
+        voice_id=voice_id,
+        text=text,
+        model_id=model_id,
+    )
+    with output_path.open("wb") as fh:
+        for chunk in audio:
+            fh.write(chunk)
     print(f"✅ MP3 saved locally: {output_path}")
 
 
 # ---------------------------------------------------------------------------
-# Dropbox upload
+# S3 upload
 # ---------------------------------------------------------------------------
 
-def upload_to_dropbox(local_path: Path, dropbox_folder: str, token: str) -> str:
+def upload_to_s3(local_path: Path, bucket: str, prefix: str) -> str:
     """
-    Upload *local_path* to Dropbox under *dropbox_folder*.
+    Upload *local_path* to S3 at s3://<bucket>/<prefix><filename>.
 
-    Returns the full Dropbox destination path.
+    Returns the full S3 URI.
     """
     try:
-        import dropbox  # type: ignore[import]
-        from dropbox.exceptions import ApiError, AuthError  # type: ignore[import]
-        from dropbox.files import WriteMode  # type: ignore[import]
+        import boto3  # type: ignore[import]
+        from botocore.exceptions import BotoCoreError, ClientError  # type: ignore[import]
     except ImportError:
         sys.exit(
-            "❌  dropbox SDK is not installed. Run: pip install dropbox"
+            "❌  boto3 is not installed. Run: pip install boto3"
         )
 
-    # Normalize the destination path
-    folder = dropbox_folder.rstrip("/")
-    if not folder.startswith("/"):
-        folder = "/" + folder
-    dest = f"{folder}/{local_path.name}"
+    prefix = prefix.rstrip("/") + "/" if prefix else ""
+    key = f"{prefix}{local_path.name}"
 
-    dbx = dropbox.Dropbox(token)
+    region = os.environ.get("AWS_REGION", "us-east-1")
+    aws_key = os.environ.get("AWS_ACCESS_KEY_ID")
+    aws_secret = os.environ.get("AWS_SECRET_ACCESS_KEY")
+    s3 = boto3.client(
+        "s3",
+        region_name=region,
+        aws_access_key_id=aws_key,
+        aws_secret_access_key=aws_secret,
+    )
 
-    # Verify the token is valid before attempting the upload
     try:
-        dbx.users_get_current_account()
-    except AuthError:
-        sys.exit(
-            "❌  Invalid Dropbox access token. Check DROPBOX_ACCESS_TOKEN in skills/.env"
-        )
+        s3.upload_file(str(local_path), bucket, key)
+    except (BotoCoreError, ClientError) as exc:
+        sys.exit(f"❌  S3 upload failed: {exc}")
 
-    with local_path.open("rb") as fh:
-        try:
-            dbx.files_upload(fh.read(), dest, mode=WriteMode("overwrite"), mute=True)
-        except ApiError as exc:
-            sys.exit(f"❌  Dropbox upload failed: {exc}")
-
-    print(f"✅ Uploaded to Dropbox: {dest}")
-    return dest
+    uri = f"s3://{bucket}/{key}"
+    print(f"✅ Uploaded to S3: {uri}")
+    return uri
 
 
 # ---------------------------------------------------------------------------
@@ -161,19 +185,29 @@ def parse_args() -> argparse.Namespace:
         help="Destination path for the generated MP3 file.",
     )
     parser.add_argument(
-        "--dropbox-folder",
-        default=os.environ.get("DROPBOX_FOLDER", "/Podcasts"),
-        help="Dropbox folder to upload the MP3 to (default: /Podcasts).",
+        "--s3-bucket",
+        default=os.environ.get("S3_BUCKET", ""),
+        help="S3 bucket name to upload the MP3 to.",
     )
     parser.add_argument(
-        "--lang",
-        default="en",
-        help="BCP 47 language code for text-to-speech (default: en).",
+        "--s3-prefix",
+        default=os.environ.get("S3_PREFIX", "podcasts/"),
+        help="Key prefix (folder) inside the S3 bucket (default: podcasts/).",
+    )
+    parser.add_argument(
+        "--voice",
+        default=DEFAULT_VOICE_ID,
+        help=f"ElevenLabs voice ID (default: {DEFAULT_VOICE_ID} — George).",
+    )
+    parser.add_argument(
+        "--model",
+        default=DEFAULT_MODEL_ID,
+        help=f"ElevenLabs model ID (default: {DEFAULT_MODEL_ID}).",
     )
     parser.add_argument(
         "--no-upload",
         action="store_true",
-        help="Skip the Dropbox upload step (useful for local testing).",
+        help="Skip the S3 upload step (useful for local testing).",
     )
     return parser.parse_args()
 
@@ -198,22 +232,21 @@ def main() -> None:
     print(f"📝 {word_count} words extracted (~{approx_minutes} min at 130 wpm)")
 
     # --- TTS conversion ---
-    text_to_mp3(text, output_path, lang=args.lang)
+    text_to_mp3(text, output_path, voice_id=args.voice, model_id=args.model)
 
-    # --- Dropbox upload ---
+    # --- S3 upload ---
     if args.no_upload:
-        print("⏭️  Skipping Dropbox upload (--no-upload flag set).")
+        print("⏭️  Skipping S3 upload (--no-upload flag set).")
         return
 
-    token = os.environ.get("DROPBOX_ACCESS_TOKEN", "")
-    if not token:
+    if not args.s3_bucket:
         sys.exit(
-            "❌  DROPBOX_ACCESS_TOKEN is not set.\n"
-            "    Add it to skills/.env or export it as an environment variable.\n"
+            "❌  S3_BUCKET is not set.\n"
+            "    Add it to skills/.env or pass --s3-bucket <bucket>.\n"
             "    See skills/README.md for setup instructions."
         )
 
-    upload_to_dropbox(output_path, args.dropbox_folder, token)
+    upload_to_s3(output_path, args.s3_bucket, args.s3_prefix)
 
 
 if __name__ == "__main__":
