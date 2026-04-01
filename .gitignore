@@ -141,8 +141,7 @@ vite.config.ts.timestamp-*
 # Podcast skill secrets
 skills/.env
 
-# Podcast skill generated output
-podcast-scripts/
+# Podcast skill generated output (MP3s are S3-only, not committed)
 podcast-mp3s/
 
 # Python cache
