@@ -56,8 +56,8 @@ _load_dotenv(Path(__file__).parent / ".env")
 
 VOICES = {
     "george":  "JBFqnCBsd6RMkjVDRZzb",
-    "rachel":  "21m00Tcm4TlvDq8ikWAM",
-    "dave":    "CYw3kZ02Hs0563khs1Fj",
+    "rachel":  "cgSgspJ2msm6clMCkdW9",   # Jessica - Playful, Bright, Warm
+    "dave":    "iP95p4xoKVk53GoZ742B",   # Chris - Charming, Down-to-Earth
     "josh":    "TxGEqnHWrfWFTfGW9XjX",
     "adam":    "pNInz6obpgDQGcFmaJgB",
     "sam":     "yoZ06aMxZJJ28mfd3POQ",
@@ -284,6 +284,8 @@ def generate_dialogue(lines: list[dict], model_id: str, output_path: Path) -> No
 
     client = _get_client()
     inputs = [DialogueInput(text=ln["text"], voice_id=ln["voice"]) for ln in lines]
+    for inp in inputs:
+        print(f"    DialogueInput: voice_id={inp.voice_id}, text={inp.text[:60]}...")
     audio = client.text_to_dialogue.convert(
         inputs=inputs,
         model_id=model_id,
