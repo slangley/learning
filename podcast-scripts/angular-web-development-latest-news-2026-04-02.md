@@ -41,9 +41,9 @@
 
 [AD BREAK]
 [VOICE:george] [excited] Are you tired of your Angular change detection running slower than your project manager's understanding of TypeScript?
-[VOICE:rachel] [deadpan] Introducing **Zone.js Detox** — the only support group for developers finally removing Zone.js from their legacy applications.
+[VOICE:sarah] [deadpan] Introducing **Zone.js Detox** — the only support group for developers finally removing Zone.js from their legacy applications.
 [VOICE:george] [cheerfully] For just three easy payments of your sanity, our certified Angular coaches will hold your hand through every `ChangeDetectionStrategy.OnPush` migration!
-[VOICE:rachel] [whispers] Side effects may include faster builds, cleaner code, and the unsettling feeling that you actually understand your own application.
+[VOICE:sarah] [whispers] Side effects may include faster builds, cleaner code, and the unsettling feeling that you actually understand your own application.
 [VOICE:george] [laughs] Zone.js Detox. Because your app deserves better. And honestly? So do you.
 [AD END]
 
@@ -84,11 +84,11 @@
 *[DING]*
 
 [AD BREAK]
-[VOICE:dave] [excited] Developers! Are you STILL manually writing TypeScript interfaces?
+[VOICE:brian] [excited] Developers! Are you STILL manually writing TypeScript interfaces?
 [VOICE:lily] [sarcastic] Oh sure, just spending your Tuesday afternoons typing `interface UserResponse` for the four hundredth time.
-[VOICE:dave] [shouts] Introducing **TypeGenie** — the AI that generates TypeScript types from your vibes alone!
+[VOICE:brian] [shouts] Introducing **TypeGenie** — the AI that generates TypeScript types from your vibes alone!
 [VOICE:lily] [curious] Just describe what you *feel* the data should be, and TypeGenie infers the rest.
-[VOICE:dave] [whispers] Results may vary. Types not guaranteed to compile. TypeGenie is not responsible for any `any` types introduced.
+[VOICE:brian] [whispers] Results may vary. Types not guaranteed to compile. TypeGenie is not responsible for any `any` types introduced.
 [VOICE:lily] [laughs] TypeGenie. Types from vibes. Terms and conditions written entirely in TypeScript.
 [AD END]
 
@@ -137,6 +137,6 @@
 - Stack Overflow Developer Survey 2025 / GitHub Octoverse — TypeScript adoption stats
 - dev.to/thebitforge — Full-stack developer roadmap 2026
 
-**Ad Voices Used:** george, rachel, dave, lily
+**Ad Voices Used:** george, sarah, brian, lily
 
 **Ad Breaks:** 2
