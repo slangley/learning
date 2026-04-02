@@ -284,8 +284,6 @@ def generate_dialogue(lines: list[dict], model_id: str, output_path: Path) -> No
 
     client = _get_client()
     inputs = [DialogueInput(text=ln["text"], voice_id=ln["voice"]) for ln in lines]
-    for inp in inputs:
-        print(f"    DialogueInput: voice_id={inp.voice_id}, text={inp.text[:60]}...")
     audio = client.text_to_dialogue.convert(
         inputs=inputs,
         model_id=model_id,
