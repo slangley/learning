@@ -1,0 +1,207 @@
+title: Kubernetes Workload Building Blocks for Java Spring Boot and Angular
+date: '2026-04-02'
+duration: '16:32'
+word_count: 2079
+summary: Episode generated from kubernetes-workload-building-blocks-spring-boot-angular-2026-04-02.md
+transcript: "Welcome, welcome, welcome to the very first episode of Kubernetes Mastery\
+  \ — a five-part deep-dive series built for solution architects and lead developers\
+  \ who already know their way around pods and nodes and are ready to level up. I'm\
+  \ your host, and over the next five episodes we're going to dismantle Kubernetes\
+  \ piece by piece and put it back together so you truly understand what's happening\
+  \ under the hood. Today's episode is all about workload building blocks — Deployments,\
+  \ ReplicaSets, StatefulSets, DaemonSets, Jobs, and CronJobs. We're going to ground\
+  \ every single concept in a real architecture: a Spring Boot microservices platform\
+  \ with an Angular frontend. No toy examples — this is production talk. And the timing\
+  \ couldn't be better. Kubernetes v1.35 \"Timbernetes\" shipped in December 2025\
+  \ with in-place Pod resource resize graduating to Stable, and v1.36 is due on April\
+  \ 22nd — just three weeks from now. The platform is maturing fast, and understanding\
+  \ workloads is the foundation for everything else we'll cover in this series: networking,\
+  \ storage, observability, and security. So grab your coffee, open your IDE, and\
+  \ let's get into it.\nLet's start where almost every Spring Boot app starts — with\
+  \ a Deployment. Picture this: you've got an order-service, a user-service, and a\
+  \ product-catalog-service, all written in Spring Boot 3. They're stateless. They\
+  \ talk to external databases. They expose REST APIs. Each one of these is a textbook\
+  \ candidate for a Kubernetes Deployment. Now here's a nuance that trips people up.\
+  \ A Deployment doesn't directly manage your pods. It creates a ReplicaSet, and the\
+  \ ReplicaSet manages the pods. Think of the Deployment as the general giving orders\
+  \ and the ReplicaSet as the lieutenant carrying them out. When you do a rolling\
+  \ update, the Deployment creates a brand-new ReplicaSet, scales it up, and scales\
+  \ the old one down. That's how you get zero-downtime deployments. For your Angular\
+  \ frontend, same story. You build your Angular app, package it into an Nginx container,\
+  \ and deploy it as a Deployment. Typically two or three replicas behind a Service.\
+  \ The pods are completely interchangeable — request hits pod-1 or pod-3, doesn't\
+  \ matter. That's the beauty of statelessness. Here's a concrete YAML mental model.\
+  \ Your Spring Boot order-service Deployment might specify three replicas, a RollingUpdate\
+  \ strategy with maxSurge of one and maxUnavailable of zero — meaning you always\
+  \ have at least three healthy pods during a deploy. You set resource requests at\
+  \ 256 megabytes of memory and 250 milliCPU, with limits at 512 and 500 respectively.\
+  \ And here's what's new — as of Kubernetes 1.35, in-place Pod resource resize is\
+  \ now GA. That means if your order-service suddenly needs more CPU under Black Friday\
+  \ load, Kubernetes can adjust the resources without killing and restarting the pod.\
+  \ That's a game-changer for stateless services running on Deployments. Common mistake\
+  \ number one: manually creating ReplicaSets. I see this in the wild more than I'd\
+  \ like to admit. You should almost never create a ReplicaSet directly. Always use\
+  \ a Deployment. The Deployment gives you rollback history, update strategies, and\
+  \ a clean declarative interface. A naked ReplicaSet gives you none of that. Common\
+  \ mistake number two: not setting a Pod Disruption Budget. You've got three replicas\
+  \ of your user-service, a node goes down for maintenance, and suddenly all three\
+  \ pods get evicted because you never told Kubernetes \"hey, keep at least two running\
+  \ at all times.\" Always pair your Deployments with PDBs.\n[Ad Break]\n  Hey there,\
+  \ Kubernetes architect! Are you tired of MANUALLY deciding which workload type to\
+  \ use?\n  Introducing WorkloadWizard 3000 — the AI-powered Magic 8-Ball for Kubernetes!\n\
+  \  Just shake your laptop and it tells you — Deployment, StatefulSet, or \"maybe\
+  \ just use a VM!\"\n  WorkloadWizard 3000 correctly predicted my database should\
+  \ be a StatefulSet. It also told me my marriage needs a RollingUpdate strategy.\n\
+  \  Side effects may include compulsive YAML writing and an irrational fear of imperative\
+  \ commands.\n  Order now and get a free Pod Disruption Budget for your personal\
+  \ life!\n[End Ad Break]\nAlright, let's talk about StatefulSets — the workload type\
+  \ that exists because not everything in life is stateless. If your Spring Boot microservices\
+  \ platform uses PostgreSQL, MySQL, or Kafka, you need to understand StatefulSets\
+  \ deeply. A StatefulSet gives you three things that a Deployment does not. First:\
+  \ stable, unique network identities. Your pods get predictable names — postgres-0,\
+  \ postgres-1, postgres-2 — not random hashes. Second: stable persistent storage.\
+  \ Each pod gets its own PersistentVolumeClaim that follows it across rescheduling.\
+  \ Third: ordered deployment and scaling. Pod-0 must be running before pod-1 starts.\
+  \ That matters enormously for leader election in database clusters. Let's make this\
+  \ real. Say your platform runs a three-node Kafka cluster. Each broker needs its\
+  \ own persistent volume for log segments, and each broker needs a stable hostname\
+  \ so the other brokers and your Spring Boot producers and consumers can find it\
+  \ reliably. You create a StatefulSet with three replicas and a headless Service.\
+  \ Kafka broker zero is always kafka-0.kafka-headless.default.svc.cluster.local.\
+  \ Your Spring Boot application.yml points to those stable DNS names. No service\
+  \ discovery gymnastics required. Now here's a big improvement from Kubernetes 1.32:\
+  \ StatefulSet PVC auto-cleanup. Previously, when you deleted a StatefulSet, the\
+  \ PVCs just... hung around. Orphaned. Costing you money in cloud storage. Now there's\
+  \ an opt-in policy where PVCs can be automatically cleaned up on StatefulSet deletion.\
+  \ Massive quality-of-life improvement. Common mistake: using a Deployment for your\
+  \ database because \"it's simpler.\" It is simpler — right up until pod-random-hash-xyz\
+  \ gets rescheduled to a different node and your data is gone because the PVC wasn't\
+  \ sticky. I've seen production outages caused by exactly this. If your workload\
+  \ has state, use a StatefulSet. Full stop. Another common mistake with Kafka on\
+  \ StatefulSets: not setting podManagementPolicy to Parallel when you can. The default\
+  \ is OrderedReady, which means Kafka brokers start one at a time. For initial deployment\
+  \ that's fine, but for scaling operations where brokers are independent, Parallel\
+  \ can save you significant time. Now let's talk about the workload types that don't\
+  \ get enough love but are absolutely essential in a production Spring Boot platform:\
+  \ DaemonSets, Jobs, and CronJobs. A DaemonSet ensures exactly one pod runs on every\
+  \ node in your cluster — or a subset of nodes if you use node selectors. The classic\
+  \ use cases are logging and monitoring. Think Fluentd or Fluent Bit collecting logs\
+  \ from every node and shipping them to Elasticsearch. Think Prometheus Node Exporter\
+  \ exposing hardware metrics. Think network plugins like Calico or Cilium. In our\
+  \ Spring Boot platform, here's where DaemonSets shine. Your order-service and user-service\
+  \ are writing structured JSON logs to stdout. On every node, a Fluent Bit DaemonSet\
+  \ pod picks up those logs, enriches them with Kubernetes metadata — namespace, pod\
+  \ name, container name — and forwards them to your centralized logging stack. You\
+  \ didn't have to configure anything in your Spring Boot apps. The DaemonSet handles\
+  \ it at the infrastructure layer. Same pattern for monitoring. A Prometheus Node\
+  \ Exporter DaemonSet on every node gives you CPU, memory, disk, and network metrics.\
+  \ Pair that with kube-state-metrics running as a Deployment, and your Grafana dashboards\
+  \ light up with everything you need. Now, Jobs. A Job runs a task to completion\
+  \ and then stops. In our platform, think database migrations. You've got a Flyway\
+  \ or Liquibase migration that needs to run before your new version of the order-service\
+  \ starts. You create a Kubernetes Job that runs the migration container once successfully\
+  \ and exits. You can even use init containers in your Deployment to wait for the\
+  \ migration Job to complete before the main application starts. And then there's\
+  \ the CronJob — a Job on a schedule. Your platform probably needs nightly database\
+  \ backups, weekly report generation, or periodic cache warming. A CronJob handles\
+  \ all of that. The syntax is standard cron — if you've ever written a crontab, you're\
+  \ already fluent. But here's where people get burned. A February 2026 article from\
+  \ OneUptime put it perfectly: \"a CronJob that stops running or a Job that keeps\
+  \ failing can go unnoticed for days.\" You absolutely must set backoffLimit to prevent\
+  \ infinite retries, activeDeadlineSeconds to kill runaway jobs, and ttlSecondsAfterFinished\
+  \ to clean up completed Job objects. Without that TTL setting, completed Job pods\
+  \ accumulate in your cluster like dirty dishes in a sink. And please, please set\
+  \ concurrencyPolicy on your CronJobs. The options are Allow, Forbid, and Replace.\
+  \ If your nightly backup takes longer than 24 hours and your concurrency policy\
+  \ is Allow — congratulations, you now have two backups running simultaneously, fighting\
+  \ over the same resources. Use Forbid to skip the new run if the previous one is\
+  \ still going.\n[Ad Break]\n  Boss, we have a problem. The CronJob that cleans up\
+  \ old user sessions? It hasn't run in three weeks.\n  Three weeks?! How many zombie\
+  \ sessions do we have?\n  Forty-seven million.\n  FORTY-SEVEN MILLION?!\n  But don't\
+  \ worry — I just discovered CronJobSitter dot io. It watches your CronJobs... so\
+  \ you don't have to!\n  Oh great. We're hiring a babysitter for our batch jobs now.\n\
+  \  It even sends you a passive-aggressive Slack message when your Job fails! \"\
+  Hey, just checking in... your backup hasn't run since February. No pressure. Just\
+  \ thought you should know.\"\n  Ship it.\n[End Ad Break]\nAlright, let's bring it\
+  \ all together with a simple decision framework. When you're adding a new component\
+  \ to your Spring Boot and Angular platform, ask yourself these questions. Question\
+  \ one: Is this a long-running process that should always be available? If yes, you're\
+  \ choosing between Deployment, StatefulSet, and DaemonSet. If no — if it's a run-once\
+  \ or run-on-schedule task — you want a Job or CronJob. Question two: Does this process\
+  \ need persistent identity or storage? If your Spring Boot service is stateless\
+  \ and talks to an external database, use a Deployment. If it IS the database — PostgreSQL,\
+  \ MongoDB, Kafka, Redis in cluster mode — use a StatefulSet. Question three: Does\
+  \ this need to run on every node? If you're deploying a logging agent, a monitoring\
+  \ exporter, or a security scanner, that's a DaemonSet. Question four: Is this a\
+  \ one-time task or a recurring one? Database migration, data import, ML model training\
+  \ — that's a Job. Nightly backup, weekly report, hourly cache refresh — that's a\
+  \ CronJob. Let me map our entire platform. The Angular frontend: Deployment. The\
+  \ order-service, user-service, product-catalog, API gateway — all Deployments. PostgreSQL:\
+  \ StatefulSet. Kafka: StatefulSet. Fluent Bit for logging: DaemonSet. Prometheus\
+  \ Node Exporter: DaemonSet. Database migrations: Job. Nightly backups: CronJob.\
+  \ Report generation: CronJob. And here's a pro tip as we head into the rest of this\
+  \ series. Kubernetes 1.35 introduced a brand-new Workload API in alpha, designed\
+  \ for describing scheduling requirements at the workload level rather than the pod\
+  \ level. It comes with gang scheduling — an all-or-nothing approach where either\
+  \ all pods in a group get scheduled or none do. This is huge for tightly coupled\
+  \ distributed workloads. Keep your eye on this for v1.36 and beyond.\nAnd that wraps\
+  \ up episode one of Kubernetes Mastery! Let's do a quick recap. Deployments and\
+  \ ReplicaSets are your workhorses for stateless Spring Boot services and Angular\
+  \ frontends. StatefulSets are non-negotiable for databases and message brokers that\
+  \ need stable identity and persistent storage. DaemonSets run infrastructure concerns\
+  \ like logging and monitoring on every node. Jobs handle one-time tasks, and CronJobs\
+  \ handle scheduled ones — but both need proper failure handling and cleanup configuration.\
+  \ In episode two, we're diving into Kubernetes networking — Services, Ingress, Network\
+  \ Policies, and how your Angular frontend actually talks to your Spring Boot backend\
+  \ through the cluster. You do not want to miss it. If you found this episode useful,\
+  \ subscribe wherever you get your podcasts, and share it with your team. Drop us\
+  \ a review — it genuinely helps us reach more architects and developers who are\
+  \ building real systems on Kubernetes. And remember: friends don't let friends use\
+  \ Deployments for databases. Until next time — keep your clusters healthy and your\
+  \ YAML well-indented. See you in episode two!\n- Kubernetes.io Official Documentation\
+  \ — Workloads - Kubernetes v1.35 \"Timbernetes\" Release Blog (December 2025) -\
+  \ Kubernetes v1.36 Sneak Peek (March 2026) - Sysdig — Kubernetes 1.32 What's New\
+  \ - The New Stack — Kubernetes 1.35 Introduces Vertical Scaling - Baeldung on Ops\
+  \ — Kubernetes Deployment vs StatefulSets - Groundcover Blog — Kubernetes StatefulSet\
+  \ vs Deployment - DevZero Blog — Kubernetes Workload Types: When to Use What - OneUptime\
+  \ Blog — How to Use Kubernetes Jobs and CronJobs (February 2026) - CNCF Blog — Kubernetes\
+  \ as AI's Operating System (February 2026) - Medium (Hajed Khlifi) — Understanding\
+  \ Kubernetes Workload Controllers"
+sources:
+- name: Kubernetes.io
+  date: March 2026
+  context: ''
+- name: Kubernetes.io Official Docs
+  date: ''
+  context: ''
+- name: Baeldung on Ops
+  date: ''
+  context: ''
+- name: The New Stack
+  date: December 2025
+  context: ''
+- name: Kubernetes.io Official Docs
+  date: ''
+  context: ''
+- name: Sysdig
+  date: Kubernetes 1.32 What's New
+  context: ''
+- name: Kubernetes.io Official Docs
+  date: ''
+  context: ''
+- name: OneUptime Blog
+  date: February 2026
+  context: ''
+- name: OneUptime Blog
+  date: February 2026
+  context: ''
+- name: DevZero Blog
+  date: Kubernetes Workload Types
+  context: ''
+- name: Kubernetes.io
+  date: v1.35 Release Blog
+  context: ''
+audio_file: /home/user/learning/podcast-mp3s/kubernetes-workload-building-blocks-spring-boot-angular-2026-04-02.mp3
+s3_uri: s3://podcast-rss-feed-prod-audio/episodes/kubernetes-workload-building-blocks-spring-boot-angular-2026-04-02.mp3
+s3_script_uri: s3://podcast-rss-feed-prod-audio/scripts/kubernetes-workload-building-blocks-spring-boot-angular-2026-04-02.md
+s3_metadata_uri: s3://podcast-rss-feed-prod-audio/metadata/kubernetes-workload-building-blocks-spring-boot-angular-2026-04-02.yaml

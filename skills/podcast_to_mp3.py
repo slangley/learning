@@ -56,8 +56,8 @@ _load_dotenv(Path(__file__).parent / ".env")
 
 VOICES = {
     "george":  "JBFqnCBsd6RMkjVDRZzb",
-    "rachel":  "21m00Tcm4TlvDq8ikWAM",
-    "dave":    "CYw3kZ02Hs0563khs1Fj",
+    "rachel":  "cgSgspJ2msm6clMCkdW9",   # Jessica - Playful, Bright, Warm
+    "dave":    "iP95p4xoKVk53GoZ742B",   # Chris - Charming, Down-to-Earth
     "josh":    "TxGEqnHWrfWFTfGW9XjX",
     "adam":    "pNInz6obpgDQGcFmaJgB",
     "sam":     "yoZ06aMxZJJ28mfd3POQ",
