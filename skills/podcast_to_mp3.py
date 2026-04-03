@@ -289,20 +289,52 @@ def generate_speech(text: str, voice_id: str, model_id: str, output_path: Path) 
 
 
 def generate_dialogue(lines: list[dict], model_id: str, output_path: Path) -> None:
-    """Generate multi-voice dialogue MP3 using the Text to Dialogue API."""
-    from elevenlabs.types import DialogueInput
+    """Generate multi-voice dialogue MP3 using the Text to Dialogue API.
 
-    client = _get_client()
-    inputs = [DialogueInput(text=ln["text"], voice_id=ln["voice"]) for ln in lines]
-    audio = client.text_to_dialogue.convert(
-        inputs=inputs,
-        model_id=model_id,
-        output_format="mp3_44100_128",
-    )
+    Falls back to concatenating individual TTS calls if the model does not
+    support the dialogue endpoint (e.g. eleven_multilingual_v2).
+    """
+    try:
+        from elevenlabs.types import DialogueInput
+
+        client = _get_client()
+        inputs = [DialogueInput(text=ln["text"], voice_id=ln["voice"]) for ln in lines]
+        audio = client.text_to_dialogue.convert(
+            inputs=inputs,
+            model_id=model_id,
+            output_format="mp3_44100_128",
+        )
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("wb") as fh:
+            for chunk in audio:
+                fh.write(chunk)
+    except Exception as exc:
+        if "unsupported_model" in str(exc) or "does not support dialogue" in str(exc):
+            print(f"    (dialogue API unsupported for {model_id}, falling back to sequential TTS)")
+            _generate_dialogue_fallback(lines, model_id, output_path)
+        else:
+            raise
+
+
+def _generate_dialogue_fallback(lines: list[dict], model_id: str, output_path: Path) -> None:
+    """Fallback: generate each dialogue line individually and concatenate."""
+    from pydub import AudioSegment
+
+    parts: list[AudioSegment] = []
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("wb") as fh:
-        for chunk in audio:
-            fh.write(chunk)
+    for i, ln in enumerate(lines):
+        tmp_path = output_path.parent / f"{output_path.stem}_dlg_{i:03d}.mp3"
+        generate_speech(ln["text"], ln["voice"], model_id, tmp_path)
+        parts.append(AudioSegment.from_mp3(str(tmp_path)))
+        tmp_path.unlink()
+
+    if parts:
+        combined = parts[0]
+        for part in parts[1:]:
+            combined += part
+        buf = io.BytesIO()
+        combined.export(buf, format="mp3", bitrate="128k")
+        output_path.write_bytes(buf.getvalue())
 
 
 def generate_or_load_asset(asset_name: str) -> Path:
