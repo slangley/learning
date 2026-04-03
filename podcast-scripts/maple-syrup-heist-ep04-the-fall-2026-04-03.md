@@ -35,9 +35,11 @@ Now, each arrest had its own... character. Let's start with the ringleader. Jean
 
 [VOICE:josh] I told the officers, "You're arresting the wrong people." The officer said, "Sir, you're in your underwear and there are forty barrels of stolen syrup in your garage." I said, "Allegedly stolen." [clears throat] My lawyer told me to stop talking. I should have listened to my lawyer sooner. Like, eighteen months sooner.
 
-[HOST] The officers did note, in their report, that the pancakes smelled excellent.
+[HOST] The officers did note, in their report, that the pancakes smelled excellent. Grade A. Dark. Robust taste. The same syrup that was supposed to be sitting in the strategic reserve, stabilizing global supply and defending Quebec's market share. Instead it was on JP's breakfast plate, at five in the morning, while three hundred officers executed a coordinated raid across eastern Canada.
 
 [VOICE:dave] Professionally relevant detail.
+
+[VOICE:josh] My lawyer told me not to talk about the pancakes. But they were good pancakes. I will stand by that. The syrup was exceptional. Say what you want about the federation, they store a quality product.
 
 [HOST] Next. Luc Desmarais. The inside man. Arrested at the warehouse. Or rather, in the parking lot of the warehouse. Sleeping in his car.
 
@@ -113,7 +115,7 @@ Now, each arrest had its own... character. Let's start with the ringleader. Jean
 
 [VOICE:dave] International journalists could not believe this was real. To be fair, neither could most Canadians.
 
-[HOST] The press conference made global headlines. Le Monde ran it on page three. The New York Times called it "the most Canadian crime imaginable." A headline in Australia read, "Sticky-Fingered Canadians Nabbed in Syrup Sting." Which, honestly, is excellent journalism.
+[HOST] The press conference made global headlines. The story of the padlock, the single guard, the warehouse full of syrup — all of it. Le Monde ran it on page three. The New York Times called it "the most Canadian crime imaginable." A headline in Australia read, "Sticky-Fingered Canadians Nabbed in Syrup Sting." Which, honestly, is excellent journalism.
 
 [VOICE:dave] Pulitzer-worthy.
 
@@ -153,6 +155,12 @@ Big Mike Michaud. Two years less a day. His lawyer argued, with a straight face,
 
 [VOICE:josh] The Supreme Court of Canada knows my name. How many people can say that? I'm in the law books now. Forever. [PAUSE] My mother would be proud. If she wasn't so angry.
 
+[HOST] JP still maintains he was right. He has given interviews from prison. He has given interviews after prison. His position has not changed in over a decade. He is consistent. You have to give him that.
+
+[VOICE:josh] I was right then. I'm right now. The federation is a cartel. The Supreme Court can say otherwise. Nine justices, nine to zero. I respect the institution. But I respectfully disagree. With all nine of them.
+
+[VOICE:dave] Respectfully.
+
 [HOST] As for the federation. They learned their lesson. Sort of. Their response to the largest agricultural theft in Canadian history was not to question the system that created a target worth stealing. No. They added more syrup to the reserve. Expanded capacity. Installed cameras, alarm systems, motion sensors, and electronic monitoring on every barrel.
 
 [VOICE:dave] They hired more guards. Steve got a promotion.
@@ -169,7 +177,7 @@ Big Mike Michaud. Two years less a day. His lawyer argued, with a straight face,
 
 [VOICE:rachel] We have invested significantly in security. The reserve is monitored twenty-four hours a day. We have learned from this experience. [PAUSE] And no, I will not be taking questions about Steve.
 
-[HOST] Henri Laroche, the competition winner whose prize-winning syrup was stolen and mixed into the general haul, never did get his syrup back. He entered the competition again in 2014. He won second place. He has not spoken publicly about the heist. But his entry form that year listed his syrup's name as "Revenge." He did not elaborate.
+[HOST] Henri Delorme, the competition entrant whose prize-winning syrup was stolen and mixed into the general haul, never did get his syrup back. He entered the competition again in 2014. He won second place. He has not spoken publicly about the heist. But his entry form that year listed his syrup's name as "Revenge." He did not elaborate.
 
 [VOICE:dave] Henri understood the assignment.
 
@@ -183,7 +191,7 @@ Jean-Pierre Bouchard saw himself as a freedom fighter. The federation saw him as
 
 [VOICE:dave] What I find remarkable is that this story has everything a great heist movie needs. A charismatic leader. An inside man. A bumbling crew. A vast fortune. A dramatic discovery — Marcel tapping that empty barrel and hearing it ring like a church bell. A dogged detective who had to keep a straight face on international television. Cousin Raymond, who couldn't keep a secret for eleven minutes. Big Mike reading Sun Tzu in the cab of a truck with his name on it. And at the center of it all... pancake topping. [deadpan] Canada, you never disappoint.
 
-[HOST] This has been The Sticky Fingers. I'm Marc Thibodeau.
+[HOST] Three thousand tons. Eighteen point seven million dollars. One padlock. One guard. One cousin who could not keep his mouth shut. This has been The Sticky Fingers. I'm Marc Thibodeau.
 
 [VOICE:dave] And I'm Danny Brewer.
 

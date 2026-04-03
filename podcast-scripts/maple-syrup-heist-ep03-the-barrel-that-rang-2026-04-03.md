@@ -5,7 +5,7 @@
 
 ## Recap
 
-[HOST] Previously on The Sticky Fingers. A crew of four men, led by a small-time crook named Jean-Pierre Morin, spent the better part of a year siphoning maple syrup from the Federation of Quebec Maple Syrup Producers' strategic reserve. Three thousand tons of it. Eighteen point seven million dollars. They replaced it with water. They stole whole barrels. They drove trucks in and out of a warehouse guarded by one man named Steve, a padlock, and absolutely no cameras. Nobody noticed. Nobody checked. Nobody asked why the reserve smelled faintly of larceny.
+[HOST] Previously on The Sticky Fingers. A crew of four men, led by a charming ringleader named Jean-Pierre Bouchard, spent the better part of a year siphoning maple syrup from the Federation of Quebec Maple Syrup Producers' strategic reserve. Three thousand tons of it. Eighteen point seven million dollars. They replaced it with water. They stole whole barrels. They drove trucks in and out of a warehouse guarded by one man named Steve, a padlock, and absolutely no cameras. Nobody noticed. Nobody checked. Nobody asked why the reserve smelled faintly of larceny.
 
 [PAUSE]
 
@@ -151,7 +151,7 @@
 
 [VOICE:dave] [deadpan] Of course.
 
-[HOST] Raymond Gendron, the crew's logistics coordinator and the man who, as we established in episode two, could not stop telling people about the heist. He had been bragging at a bar in Trois-Rivieres. Not quietly. Not in a corner. At the bar. To anyone who would listen. He told the bartender — a woman named Suzanne — over his fourth beer of the evening, that he was, and I am quoting directly here, "a major player in the syrup underworld."
+[HOST] Raymond Bouchard, the crew's logistics coordinator and the man who, as we established in episode two, could not stop telling people about the heist. He had been bragging at a bar in Trois-Rivieres. Not quietly. Not in a corner. At the bar. To anyone who would listen. He told the bartender — a woman named Suzanne — over his fourth beer of the evening, that he was, and I am quoting directly here, "a major player in the syrup underworld."
 
 [VOICE:sarah] The bartender mentioned it to her brother-in-law at a family barbecue. Her brother-in-law happened to be a retired RCMP officer.
 

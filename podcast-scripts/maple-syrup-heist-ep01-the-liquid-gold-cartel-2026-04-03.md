@@ -7,81 +7,77 @@
 
 ## Cold Open
 
-[HOST] In the winter of 2012, investigators in rural Quebec uncovered what would become the largest agricultural theft in Canadian history. The stolen goods were not gold. Not diamonds. Not priceless artwork.
+[HOST] In the winter of 2012, investigators in rural Quebec uncovered what would become the largest agricultural theft in Canadian history. The stolen goods were not gold. Not diamonds. Not priceless artwork. [PAUSE] They were not even particularly easy to carry.
 
 [VOICE:dave] It was maple syrup.
 
 [HOST] Three thousand tons of it.
 
-[VOICE:dave] [deadpan] For context, that is roughly eighteen million pounds. Enough to fill an Olympic swimming pool. Twice. With syrup left over for pancakes.
+[VOICE:dave] For context, that is roughly eighteen million pounds of syrup. Enough to fill an Olympic swimming pool. Twice. [deadpan] And still have enough left over for a truly excessive stack of pancakes.
 
-[HOST] Over the course of several months, a small crew of men in rural Quebec managed to drain and replace the contents of thousands of barrels from a highly secure — and I use that term loosely — government-controlled warehouse. The total value of the stolen syrup exceeded eighteen million dollars.
+[HOST] Over the next four episodes, we are going to take you inside the most audacious, most improbable, and quite possibly the most Canadian crime ever committed. This is the story of a shadowy cartel, a strategic reserve that almost nobody was guarding, and a group of men who looked at forty-five million dollars worth of maple syrup and thought — yes. We should steal that.
 
-[VOICE:dave] Canadian dollars. So about twelve American dollars and a gift card to Tim Hortons.
+[VOICE:dave] All of it.
 
-[HOST] This is The Sticky Fingers, a four-part series about the Great Canadian Maple Syrup Heist. Over the next four episodes, we will take you inside the plot, the players, the stakeouts, and the sticky, sticky aftermath.
+[HOST] All of it.
 
-[VOICE:dave] It is a story about greed. About ambition. About the lengths men will go to when they feel the system has failed them.
+[VOICE:dave] With a truck.
 
-[HOST] And about maple syrup. A truly unreasonable amount of maple syrup.
+[HOST] With several trucks.
 
-[VOICE:dave] So much syrup. An almost philosophically troubling amount of syrup.
+[VOICE:dave] And a hose.
 
-[HOST] A quick note before we begin. The names in this series have been changed. The events have been... adjusted. But the syrup? The syrup was very, very real.
+[HOST] I'm Marc Thibodeau. With me, as always, is Danny Brewer. And this is The Sticky Fingers.
+
+[VOICE:dave] A true crime series. About syrup.
+
+[HOST] Before we begin, a brief disclaimer. The names in this series have been changed. The events have been... adjusted. Certain conversations have been reconstructed from court records, interviews, and one deeply unreliable memoir written by a man who refers to himself exclusively in the third person. But the syrup? [PAUSE] The syrup was very, very real.
 
 [PAUSE]
-
-*[MUSIC - TRANSITION]*
 
 ## Segment 1: The Federation
 
-[HOST] To understand the heist, you first need to understand the Federation of Quebec Maple Syrup Producers. And to understand the federation, you need to understand one very important fact about the province of Quebec.
+[HOST] To understand how someone steals three thousand tons of maple syrup, you first have to understand the organization that controlled it. And I use the word "controlled" deliberately, Danny, because there is really no other word that fits.
 
-[VOICE:dave] They take their syrup seriously.
+[VOICE:dave] "Monopolized" fits.
 
-[HOST] Quebec produces seventy-seven percent of the world's maple syrup. Not Canada. Quebec. One province. And the federation controls all of it. Every drop that flows from every tap on every sugar maple in Quebec runs through the federation's books.
+[HOST] The Federation of Quebec Maple Syrup Producers was established in 1966. Its stated purpose was to protect Quebec's maple syrup industry, stabilize prices, and ensure the long-term viability of the province's most iconic export. Quebec, for those who may not know, produces approximately seventy-seven percent of the world's maple syrup.
+
+[VOICE:dave] Seventy-seven percent. Of the world's supply. One province.
+
+[HOST] One province. And the federation controls all of it. Every drop. If you are a maple syrup producer in Quebec, you sell through the federation. You produce the amount the federation tells you to produce. You accept the price the federation sets. And if you don't comply, you are fined. Heavily.
 
 [VOICE:dave] So it's OPEC. But stickier.
 
-[HOST] That is remarkably accurate. The Federation of Quebec Maple Syrup Producers operates almost identically to a commodities cartel. They set prices. They assign production quotas to individual farms. If you are a maple syrup producer in Quebec, you cannot sell a single barrel without the federation's approval.
+[HOST] That is not an inaccurate comparison. The federation sets production quotas, manages exports, negotiates bulk pricing with international buyers, and — this is the critical part — maintains what is known as the Global Strategic Maple Syrup Reserve.
 
-[VOICE:dave] And if you try, they will find you. They have inspectors. They have lawyers. They have a very aggressive accounting department.
+[VOICE:dave] I need you to understand that I am not making that up. The Global Strategic Maple Syrup Reserve is a real thing.
 
-[HOST] The federation was established in 1966, and over the decades, it built an ironclad system of supply control. The idea was simple: by restricting how much syrup enters the market, you keep prices stable. You protect the small family producer from being undercut by industrial operations. In theory, it's a noble system.
+[HOST] It is a real thing. Tens of thousands of barrels of maple syrup, stored in a massive warehouse in the town of Saint-Louis-de-Blandford, Quebec. The idea being that if there is a bad harvest, or a sudden spike in demand, the federation can release syrup from the reserve to stabilize prices.
 
-[VOICE:dave] In practice, it made a lot of people very angry.
+[VOICE:dave] Guarded about as well as Fort Knox is not.
 
-[HOST] But the most remarkable thing about the federation — the detail that makes this entire story possible — is the Strategic Maple Syrup Reserve.
+[HOST] We'll get to that. But first, I want you to hear from someone who was there. Colette Fontaine served as president of the federation from 2009 to 2014. We spoke with her at her home outside Montreal. [PAUSE] She served us crepes. They were excellent.
 
-[VOICE:dave] [deadpan] Those are real words in that order.
+*[MUSIC - INTERVIEW STING]*
 
-[HOST] The Strategic Maple Syrup Reserve is exactly what it sounds like. A stockpile. Millions of pounds of maple syrup, stored in barrels, in warehouses across Quebec. The reserve exists to buffer against bad harvests, to stabilize prices during years of overproduction, and to ensure that the world never — not even for a moment — faces a maple syrup shortage.
+[VOICE:rachel] [clears throat] People do not understand what maple syrup means to Quebec. They think it is a condiment. Something you put on pancakes at a diner. This is ignorance. Maple syrup is not a condiment. It is a strategic natural resource. It is heritage. It is identity. The reserve exists because the world depends on us, and we cannot afford to let the world down.
 
-[VOICE:dave] Which would be catastrophic.
+[HOST] Can you describe the reserve for us? The physical space?
 
-[HOST] The reserve, at its peak, held roughly sixty million pounds of syrup. Valued at well over a hundred million dollars. All of it sitting in warehouses. Which brings us to Colette Fontaine.
-
-[PAUSE]
-
-[HOST] Colette Fontaine served as president of the federation's board during the period in question. We spoke to her at her home outside of Quebec City.
-
-[VOICE:rachel] Thank you for having me. I do not often speak about this period. It was... difficult.
-
-[HOST] Madame Fontaine, you oversaw the reserve during this period. For our listeners who have never seen it, can you describe what the reserve actually looked like?
-
-[VOICE:rachel] [sighs] It was magnificent. Rows upon rows of steel barrels, forty-five gallons each, stacked floor to ceiling. The light would come through the high windows and hit the barrels, and you could see the amber glow. A cathedral of amber. That is what I called it.
+[VOICE:rachel] It was a warehouse. But to call it merely a warehouse does not capture it. You walk in and there are barrels from floor to ceiling. Rows and rows. The air smells sweet. The light comes in amber through the high windows. It was a cathedral of amber. [sighs] It was magnificent.
 
 [HOST] And the security at this cathedral?
 
-[VOICE:rachel] The security was... proportional to the perceived threat.
+[VOICE:rachel] The security was... adequate for the time.
 
-[VOICE:dave] [deadpan] Which was zero.
+[HOST] Can you describe it?
 
-[VOICE:rachel] We had a guard. His name was Steve. Steve was very dedicated. He did his rounds every evening. He checked the padlock.
+[VOICE:rachel] There was a guard. His name was Steve. Steve worked the day shift. Monday through Friday. He also worked the night shift.
 
-[HOST] The padlock. Singular.
+[VOICE:dave] The same Steve?
 
-[VOICE:rachel] It was a good padlock.
+[VOICE:rachel] Yes. Steve was very dedicated. He also had a German Shepherd. The dog's name was Biscuit. Biscuit was old. Biscuit was not a threat to anyone.
 
 [HOST] Were there cameras?
 
@@ -91,184 +87,174 @@
 
 [VOICE:rachel] No.
 
-[HOST] Motion sensors? Infrared? Pressure plates? Anything?
+[HOST] What about the locks?
 
-[VOICE:rachel] We had Steve. And the padlock. You must understand, maple syrup is not a condiment. It is a strategic natural resource. But it is not cocaine. Nobody wakes up in the morning and thinks, "Today I will steal three thousand tons of maple syrup."
+[VOICE:rachel] There was a padlock. A good padlock. A Master Lock. The kind you buy at Canadian Tire. [PAUSE] It was a number four.
 
-[HOST] To be fair, who would steal maple syrup?
+[HOST] To be fair, Colette — who would steal maple syrup?
 
-[VOICE:rachel] That is exactly what I said at the board meeting. [PAUSE] I regret saying it now.
+[VOICE:rachel] That is exactly what I said at the board meeting. Those were my precise words. "Who would steal maple syrup?" [PAUSE] I regret saying it now. I regret it very much.
 
-[HOST] Guarded about as well as Fort Knox is not.
+[PAUSE]
 
-[VOICE:dave] Steve, if you're listening, this is not your fault. You were one man. With one padlock. Against destiny.
+[HOST] One guard named Steve. A geriatric German Shepherd named Biscuit. No cameras. No alarms. A padlock from Canadian Tire. Protecting forty-five million dollars worth of liquid gold.
 
-*[MUSIC - TRANSITION]*
+[VOICE:dave] You know what has better security than that? My gym locker.
 
-## Ad Break 1
+[HOST] Your gym locker does not contain a significant percentage of the world's syrup supply.
+
+[VOICE:dave] No. But it does contain my headphones. And I have a combination lock.
 
 [AD BREAK]
 
-[VOICE:sarah] Is your syrup unprotected? Does your warehouse have fewer cameras than a 1970s gas station?
+*[MUSIC - AD JINGLE]*
 
-[VOICE:brian] Are you relying on a single employee named Steve and a padlock you bought at Canadian Tire?
+[VOICE:sarah] Is your syrup unprotected? Does your warehouse have fewer cameras than a 1970s gas station? Is your entire security infrastructure a man named Steve and a dog who sleeps nineteen hours a day?
 
-[VOICE:sarah] Then you need Barrel Guard Pro. The world's first dedicated maple syrup security system.
+[VOICE:brian] Introducing Barrel Guard Pro. The world's first maple syrup security system. Designed specifically for the unique challenges of protecting large quantities of viscous agricultural products.
 
-[VOICE:brian] Barrel Guard Pro uses patented Hollow Detection Technology to monitor every barrel in your reserve, twenty-four hours a day, seven days a week. Our sensors can detect a change in barrel weight as small as half an ounce.
+[VOICE:sarah] Barrel Guard Pro uses patented Hollow Detection Technology to alert you the moment a barrel's weight drops below expected levels. Each sensor attaches directly to the barrel and communicates wirelessly with our monitoring station.
 
-[VOICE:sarah] That's less than a tablespoon. Barrel Guard Pro catches syrup theft before your pancakes even notice.
+[VOICE:brian] You'll receive real-time alerts via text, email, and — for our premium subscribers — a phone call from an actual human being who will say, quote, "Someone is touching your syrup."
 
-[VOICE:brian] Our system also includes perimeter monitoring, infrared motion detection, and a direct line to the Royal Canadian Mounted Police. Because when syrup goes missing, you want a Mountie. Not Steve.
-
-[VOICE:sarah] Side effects may include: false alarms from empty beer kegs, an overwhelming sense of security you have never before experienced, and existential dread about what else in your life you are not adequately protecting.
+[VOICE:sarah] Side effects may include: false alarms triggered by empty beer kegs stored in the same facility, existential dread about what else in your life you are failing to protect, and a persistent ringing sound that may or may not be the sensor or may or may not be tinnitus.
 
 [VOICE:brian] Barrel Guard Pro. Because Steve can't do this alone.
 
-[VOICE:sarah] Visit barrelguardpro.ca. That's barrel-guard-pro-dot-C-A.
+[VOICE:sarah] Barrel Guard Pro is not responsible for any syrup lost, stolen, or consumed by Steve during night shifts.
+
+*[MUSIC - AD JINGLE END]*
 
 [AD END]
-
-*[MUSIC - TRANSITION]*
 
 ## Segment 2: The Crew
 
-[HOST] Jean-Pierre Bouchard was not a criminal. He would want me to say that up front. He was a maple syrup producer. Third generation. His grandfather tapped his first tree in 1941. His father expanded the operation to six hundred taps. Jean-Pierre grew it to three thousand.
+[HOST] Now that you understand the target, let me introduce you to the man who saw it for what it was. [PAUSE] An opportunity.
 
-[VOICE:dave] And then the federation told him to stop.
+*[MUSIC - CHARACTER INTRO]*
 
-[HOST] His quota allowed for roughly half of what his operation could produce. Every spring, JP watched sap flow through lines that the federation said he couldn't use. Trees he'd tapped himself. On his own land. Producing syrup he wasn't allowed to sell.
+[HOST] Jean-Pierre Bouchard. Known in certain circles as "Le Rouleur" — The Barrel Roller. JP, as everyone called him, was forty-three years old in 2011. He was a maple syrup reseller — a middleman who bought from producers and sold to buyers outside the federation's approved channels. The black market, Danny.
 
-[VOICE:dave] So he sold it anyway.
+[VOICE:dave] The maple syrup black market.
 
-[HOST] He sold it anyway. On the black market. And the federation caught him. And they fined him one-point-eight million dollars.
+[HOST] Which is a real thing.
 
-[VOICE:dave] [deadpan] For selling syrup. From his own trees.
+[VOICE:dave] Of course it is.
 
-[HOST] That fine is what set everything in motion. One-point-eight million dollars for selling your own product from your own land. It is what turned Jean-Pierre Bouchard from a frustrated farmer into the man the newspapers would later call Le Rouleur. The Barrel Roller.
+[HOST] JP had been a thorn in the federation's side for years. He'd been fined one point eight million dollars for unauthorized syrup sales. He did not pay the fine. He considered it, in his words, "an insult to free enterprise." [paper rustling] We spoke with JP at a diner in Trois-Rivieres. He ordered the number three breakfast. Extra syrup. He was not subtle about the symbolism.
 
-[PAUSE]
+*[MUSIC - INTERVIEW STING]*
 
-[HOST] We spoke with JP at a diner in Laurierville. He ordered the pancakes.
-
-[VOICE:josh] The federation is the real criminal. You want to talk about theft? They tell farmers how much syrup they can make. On their own land. From their own trees. I was not stealing. I was liberating syrup.
+[VOICE:josh] The federation. You want to talk about criminals? Let's talk about the federation. They tell a farmer — a man who has tapped his own trees on his own land with his own hands — they tell this man how much syrup he is allowed to make. And if he makes one barrel more, they fine him. They confiscate his product. They ruin him. [PAUSE] I was not stealing. I was liberating syrup.
 
 [VOICE:dave] Liberating it... into your bank account.
 
-[VOICE:josh] [laughs] A man has to eat. But I am serious. The federation takes from the small producer and gives to the system. I took from the system and gave to... well, also to the system. Just a different system. My system.
+[VOICE:josh] [laughs] A man has to eat, my friend.
 
 [HOST] When did you first see the reserve?
 
-[VOICE:josh] 2010. I had a delivery. Legitimate, believe it or not. I backed my truck up to the warehouse in Saint-Louis-de-Blandford, and I saw it. All that syrup. Rows and rows and rows. Barrels stacked to the ceiling. Just sitting there. Behind a padlock. With Steve.
+[VOICE:josh] A friend of mine — I won't say who — he had business at the warehouse. He brought me along. I walked in and I could not believe what I was seeing. Barrels. Thousands of them. Just sitting there. Behind a padlock. [PAUSE] With Steve.
 
-[HOST] What went through your mind?
+[HOST] And what did you think?
 
-[VOICE:josh] Honestly? I thought, "This is the most poorly guarded hundred million dollars I have ever seen in my life."
+[VOICE:josh] I thought, this is the most beautiful thing I have ever seen. And then I thought — this is also the most poorly guarded thing I have ever seen. And then those two thoughts met each other in my brain, and a third thought was born.
 
-[VOICE:dave] To be fair, it was probably the only hundred million dollars he had ever seen in his life.
+[VOICE:dave] The miracle of criminal ideation.
 
-[VOICE:josh] That is also true.
+[HOST] JP knew he couldn't do it alone. He needed someone on the inside. [PAUSE] Which brings us to Luc Desmarais.
 
-[HOST] JP didn't act right away. He sat on the idea for nearly a year. But he knew he couldn't do it alone. He needed someone inside. Someone with access to the warehouse. Someone who could explain away the comings and goings of trucks at odd hours.
+*[MUSIC - CHARACTER INTRO]*
+
+[HOST] Luc was a quiet man. Unassuming. He ran a small equipment rental business, mostly lawnmowers and snowblowers. But Luc had one critical asset — his wife, Therese, co-owned the warehouse where the reserve was stored. Luc had keys. Luc knew the layout. Luc knew Steve's schedule. We spoke with Luc by phone. He asked that we not record his voice. We recorded his voice.
+
+[VOICE:adam] [sighs] JP approached me at Canadian Thanksgiving. October, you know, not your American one. We were at my cousin's house. It was between the turkey and the pumpkin pie. He pulled me aside and said he had a "business proposition." I thought he meant a landscaping job. He was always doing landscaping jobs. I said sure, JP, what is it.
+
+[HOST] And what did he say?
+
+[VOICE:adam] He said — and I am quoting — "How would you like to make more money than you have ever seen in your life and also become a legend?" [PAUSE] When he told me what he actually wanted, I choked on a dinner roll. My wife had to hit me on the back. Therese hit me very hard. She did not know why I was choking. She still does not know, actually.
+
+[HOST] But you said yes.
+
+[VOICE:adam] [whispers] Not immediately. But eventually, yes. God help me. Yes.
 
 [PAUSE]
 
-[HOST] He needed Luc Desmarais.
+[HOST] JP had his inside man. But he needed more. He needed muscle. He needed transportation. He needed someone who could move thousands of barrels without attracting attention in a province where everyone knows everyone and gossip travels faster than the weather. And so, the crew grew.
 
-[HOST] Luc was not a criminal either. He was a small business owner. He ran a sugar shack. His wife, Marie-Claire, co-owned the warehouse where the reserve was stored. Luc had keys. Luc knew the schedule. Luc knew when Steve took his breaks.
+There was Raymond Allard — JP's cousin. Raymond was not what you would call a natural criminal. He was a plumber by trade, a churchgoer on Sundays, and by all accounts a deeply decent man who simply could not say no to family. His primary qualification was that he owned a panel van. His primary liability was that he could not keep a secret. Raymond had once spoiled a surprise birthday party for his own mother. He told her about it three weeks in advance because, in his words, "she seemed sad and I wanted to cheer her up."
 
-[VOICE:adam] [clears throat] JP approached me at Canadian Thanksgiving. October. 2011. Between the turkey and the pumpkin pie. My mother-in-law had just left the table to get dessert. He leaned over and said he had a "business proposition." I thought he meant a landscaping job. JP had a riding mower he was always trying to rent out.
+[VOICE:dave] Operational security at its finest.
 
-[HOST] But it wasn't about the mower.
+[HOST] And then there was "Big Mike" Michaud. Real name Michel. A log trucker from the Beauce region. JP brought Big Mike in to handle transportation and to help find buyers for the stolen syrup on the American side of the border.
 
-[VOICE:adam] No. It was not about the mower. When he told me what he actually wanted, I choked on a dinner roll. My wife had to hit me on the back. She asked if I was okay. I said yes. I was not okay. [PAUSE] JP had just asked me to help him steal eighteen million dollars' worth of maple syrup.
+[VOICE:arnold] Look, JP calls me up and says he needs trucks. I drive trucks. He says there's product that needs to move across the border. I've moved lumber, I've moved gravel, I've moved logs. Trees, syrup — what's the difference? It all comes from the same place.
 
-[HOST] And you said yes.
+[HOST] The difference is that one of them is a controlled commodity worth fifteen hundred dollars a barrel.
 
-[VOICE:adam] [sighs] Not right away. I said I needed to think about it. I thought about it for three days. Then JP called me and said he'd already found someone else for the inside work. And I felt... relieved. And then he said he was joking. And asked me again. And I said yes. I don't know why I said yes.
+[VOICE:arnold] Yeah, well. I learned that part later.
 
-[VOICE:dave] Probably the one-point-eight-million-dollar fine JP was facing. Desperation is a powerful recruitment tool.
-
-[HOST] With Luc on board, JP began assembling the rest of the crew. And this is where the story begins to feel less like Ocean's Eleven and more like a community theater production of Ocean's Eleven.
-
-[HOST] There was Cousin Raymond. Raymond Bouchard. JP's first cousin. A plumber by trade. Brought on because he owned a truck and, according to JP, "could keep his mouth shut."
-
-[VOICE:josh] I was wrong about that.
-
-[HOST] Raymond had once spoiled a surprise birthday party for his own mother. He told her about it three days in advance because, in his words, "she seemed stressed and he thought it would cheer her up."
-
-[VOICE:dave] A born conspirator.
-
-[HOST] And finally, there was Michel "Big Mike" Michaud. Big Mike was a long-haul trucker who had previously been involved in moving stolen lumber across provincial lines.
-
-[VOICE:arnold] Look. Trees, syrup — what's the difference? It all comes from the forest. I move things. That's what I do. JP called me, said he needed things moved. I said, "What things?" He said, "Liquid things." I said, "How liquid?" He said, "Very." I said, "I'm in."
-
-[VOICE:dave] [deadpan] Truly, the Ocean's Eleven of rural Quebec.
+[VOICE:dave] Truly, the Ocean's Eleven of rural Quebec.
 
 [HOST] More like Ocean's Four. With a Raymond.
 
-[VOICE:dave] Ocean's Four and a Half. Raymond counts as half because he'll tell someone about it before it's over.
+[VOICE:dave] Ocean's Four and a Raymond would be an excellent band name.
 
-[HOST] That is not confirmed. But it is strongly implied by everything we know about Raymond.
+[HOST] The crew was assembled by early 2012. JP. Luc. Big Mike. Raymond. Four men with a van, some trucks, a rubber hose, and — critically — a set of keys to a warehouse containing a significant percentage of the world's maple syrup supply.
 
-[HOST] The crew was set. JP had his inside man, his trucker, his cousin with a plumbing van, and himself. Four men against a hundred-million-dollar syrup reserve protected by one guard, one padlock, and zero cameras.
+[VOICE:dave] And standing between them and forty-five million dollars was a padlock, a man named Steve, and a very old dog named Biscuit.
 
-[VOICE:dave] The question was not whether they could pull it off. The question was how long it would take anyone to notice.
+[HOST] The plan was simple. Almost insultingly so.
 
-[HOST] And the answer to that question is what makes this story truly remarkable.
-
-*[MUSIC - TRANSITION]*
-
-## Ad Break 2
+[VOICE:dave] I'm already insulted.
 
 [AD BREAK]
 
-[VOICE:lily] Are you tired of traditional investments? Stocks? Bonds? Real estate? What if your portfolio could be backed by something real? Something you can pour on a stack of buttermilk pancakes?
+*[MUSIC - AD JINGLE]*
 
-[VOICE:matilda] Introducing SyrupCoin. The world's first blockchain-backed maple syrup cryptocurrency.
+[VOICE:lily] Are you tired of volatile markets? Stocks crashing? Crypto collapsing? What if your portfolio was backed by something real? Something you can pour on a pancake?
 
-[VOICE:lily] Each SyrupCoin token represents one fluid ounce of Grade A amber maple syrup, securely stored in a federation-approved warehouse. Or it did. Before the heist.
+[VOICE:matilda] Introducing SyrupCoin. The world's first blockchain-backed maple syrup cryptocurrency. Each SyrupCoin token represents one fluid ounce of certified Grade A amber maple syrup, stored in a secure — well, a relatively secure — facility in Quebec.
 
-[VOICE:matilda] SyrupCoin uses cutting-edge distributed ledger technology to bring transparency and trust to the global maple syrup market. Every transaction is verified. Every barrel is tracked. Every ounce is accounted for.
+[VOICE:lily] Each token represented one fluid ounce of Grade A amber syrup. Or it did. Before the heist.
 
-[VOICE:lily] Unlike other cryptocurrencies, SyrupCoin is backed by a tangible, delicious commodity. It's the stablecoin backed by something real. Canadian breakfast.
+[VOICE:matilda] SyrupCoin. Finally, a stablecoin backed by something real. Canadian breakfast.
 
-[VOICE:matilda] And with our new DeFi syrup staking program, your tokens can earn up to twelve percent annual yield. That's twelve percent more syrup, just for holding syrup.
+[VOICE:lily] With SyrupCoin, you're not just investing. You're participating in the sweet, sweet future of decentralized condiment finance.
 
-[VOICE:lily] Warning: Past performance of syrup reserves does not guarantee future results. SyrupCoin is not insured by the CDIC, the FDIC, or any organization with letters. Tokens may lose value in the event of theft, evaporation, or bears.
+[VOICE:matilda] Warning: Past performance of syrup reserves does not guarantee future results. SyrupCoin is not insured by any government, banking institution, or maple syrup federation. Token holders are not entitled to physical syrup redemption in the event of a reserve shortage or, hypothetically, a massive theft.
 
-[VOICE:matilda] SyrupCoin. Buy the dip. Especially if the dip is maple.
+[VOICE:lily] Buy the dip. Especially if the dip is maple.
 
-[VOICE:lily] Learn more at syrupcoin.io. This is not financial advice. This is breakfast advice.
+*[MUSIC - AD JINGLE END]*
 
 [AD END]
 
-*[MUSIC - TRANSITION]*
-
 ## Closing
 
-[HOST] By the fall of 2011, the crew was assembled. Jean-Pierre Bouchard had his plan. Luc Desmarais had his keys. Big Mike had his truck. Cousin Raymond had his plumbing van and his inability to keep a secret.
+*[MUSIC - CLOSING THEME]*
 
-[VOICE:dave] A winning combination.
+[HOST] So. By the spring of 2012, everything was in place. JP had his crew. Luc had his keys. Big Mike had his trucks. And Raymond had been told, repeatedly and firmly, to not tell anyone about anything, under any circumstances, ever.
 
-[HOST] The target was clear: the Strategic Maple Syrup Reserve at Saint-Louis-de-Blandford. Thousands of barrels. Millions of dollars. One padlock.
+[VOICE:dave] I'm sure that worked out perfectly.
 
-[VOICE:dave] And Steve.
+[HOST] The crew was assembled. The plan was in motion. A warehouse full of maple syrup sat in a quiet town in rural Quebec, guarded by one man and one padlock. Worth more per gallon than crude oil. And four men had decided to take it.
 
-[HOST] And Steve. The crew was in place. The plan was in motion. Four men from rural Quebec were about to attempt the largest theft of maple syrup — the largest theft of any agricultural product — in recorded history.
+[PAUSE]
 
-[VOICE:dave] What could possibly go wrong.
+[HOST] Next time on The Sticky Fingers — the heist itself. How do you steal three thousand tons of maple syrup? [PAUSE] Slowly. And then all at once.
 
-[HOST] Next time on The Sticky Fingers: the heist itself. How do you steal three thousand tons of maple syrup without anyone noticing? The answer is: slowly. Very slowly. And then all at once.
+[VOICE:dave] It turns out you can move a remarkable amount of syrup if nobody is watching. And nobody was watching.
 
-[VOICE:dave] We will also meet a man named Henri. Henri is a barrel inspector. Henri would very much like his barrel back.
+[HOST] We'll take you inside the warehouse. We'll walk through the method — barrel by barrel, truck by truck, month by month. And we'll meet a man named Henri who stored his own private syrup in the same facility and would very much like his barrel back.
 
-[HOST] That is next week. Episode two: The Slow Drain. I'm Marc Thibodeau.
+[VOICE:dave] Henri has been asking about that barrel for fourteen years now.
 
-[VOICE:dave] And I'm Danny Brewer.
+[HOST] He has.
 
-[HOST] Thank you for listening. And remember: lock your syrup.
+[VOICE:dave] He is not over it.
 
-[VOICE:dave] And tip your Steve.
+[HOST] He is not. [PAUSE] I'm Marc Thibodeau. Thank you for listening. We'll see you next week.
+
+[VOICE:dave] Don't forget to lock your syrup.
 
 *[MUSIC - OUTRO]*
