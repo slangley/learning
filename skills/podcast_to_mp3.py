@@ -246,6 +246,16 @@ def parse_script(script_path: Path, host_voice: str) -> tuple[list[dict], list[d
                     host_lines.append(text)
                 continue
 
+            # Voice line outside ad block — treat as separate speech segment
+            vm = _VOICE_PREFIX.match(line)
+            if vm:
+                flush_host()
+                voice_name = vm.group(1)
+                text = strip_sources(line[vm.end():])
+                if text:
+                    segments.append({"type": "speech", "voice": voice_name, "text": text})
+                continue
+
             # Any other non-empty line (plain text) — treat as host speech
             text = strip_sources(line)
             if text and not line.startswith("*") and not line.startswith("["):
