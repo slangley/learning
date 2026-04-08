@@ -1,6 +1,6 @@
 title: Helm Charts for Deploying Java Spring Boot and Angular Applications
 date: '2026-04-02'
-duration: '20:32'
+duration: '21:46'
 word_count: 1965
 summary: Episode generated from helm-charts-spring-boot-angular-kubernetes-2026-04-02.md
 transcript: "Welcome back to the Kubernetes Mastery series! I'm your host, and you\
@@ -199,7 +199,7 @@ sources:
 - name: Fairwinds
   date: December 2025
   context: ''
-audio_file: /home/user/learning/podcast-mp3s/helm-charts-spring-boot-angular-kubernetes-2026-04-02.mp3
+audio_file: podcast-mp3s/helm-charts-spring-boot-angular-kubernetes-2026-04-02.mp3
 s3_uri: s3://podcast-rss-feed-prod-audio/episodes/helm-charts-spring-boot-angular-kubernetes-2026-04-02.mp3
 s3_script_uri: s3://podcast-rss-feed-prod-audio/scripts/helm-charts-spring-boot-angular-kubernetes-2026-04-02.md
 s3_metadata_uri: s3://podcast-rss-feed-prod-audio/metadata/helm-charts-spring-boot-angular-kubernetes-2026-04-02.yaml
