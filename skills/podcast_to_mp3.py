@@ -9,7 +9,11 @@ Usage:
     python podcast_to_mp3.py --script <path> --output <path> [options]
 
 Environment variables (or .env file in the same directory as this script):
-    ELEVENLABS_API_KEY     Required. ElevenLabs API key.
+    ELEVENLABS_API_KEY     Required when --tts-provider=elevenlabs (the default).
+                           Also required for SFX/music when --tts-provider=gemini
+                           and the asset is not cached.
+    GEMINI_API_KEY         Required when --tts-provider=gemini.
+    TTS_PROVIDER           Optional. Default backend if --tts-provider is omitted.
     S3_BUCKET              Required. S3 bucket name.
     S3_PREFIX              Optional. Key prefix inside the bucket (default: episodes/).
     AWS_ACCESS_KEY_ID      Optional. Falls back to ~/.aws/credentials or IAM role.
@@ -26,6 +30,7 @@ import sys
 import tempfile
 from datetime import date
 from pathlib import Path
+from typing import Optional
 
 # ---------------------------------------------------------------------------
 # Optional .env loading (no external dependency required)
@@ -70,8 +75,44 @@ VOICES = {
     "domi":    "AZnzlk1XvdvUeBnXmlld",
 }
 
+# Friendly-name → Gemini prebuilt voice. Chosen to roughly match the
+# character/tone of each ElevenLabs voice above so --host-voice works
+# identically across backends. Raw Gemini voice names (e.g. "Zephyr")
+# pass through resolve_voice() unchanged.
+GEMINI_VOICES = {
+    "george":  "Charon",      # deep / informative
+    "rachel":  "Aoede",       # breezy
+    "dave":    "Puck",        # upbeat
+    "josh":    "Orus",        # firm
+    "adam":    "Algieba",     # smooth
+    "sam":     "Fenrir",      # excitable
+    "sarah":   "Kore",        # firm
+    "brian":   "Enceladus",   # breathy
+    "lily":    "Leda",        # youthful
+    "matilda": "Autonoe",     # bright
+    "antoni":  "Iapetus",     # clear
+    "arnold":  "Achernar",    # soft
+    "domi":    "Despina",     # smooth
+}
+
 DEFAULT_VOICE = "george"
 DEFAULT_MODEL_ID = "eleven_v3"
+DEFAULT_GEMINI_MODEL_ID = "gemini-3.1-flash-tts-preview"
+
+# Gemini TTS input limit. We target 20k tokens (~80k chars) per request to
+# leave a safety margin under the 25k cap.
+GEMINI_TOKEN_BUDGET = 20_000
+GEMINI_CHARS_PER_TOKEN = 4  # rough heuristic when count_tokens is unavailable
+
+# Gemini returns raw 16-bit PCM, mono, 24 kHz.
+GEMINI_PCM_SAMPLE_RATE = 24_000
+GEMINI_PCM_SAMPLE_WIDTH = 2
+GEMINI_PCM_CHANNELS = 1
+
+# Gemini multi-speaker TTS supports at most 2 speakers per request.
+GEMINI_MAX_SPEAKERS_PER_REQUEST = 2
+
+SUPPORTED_PROVIDERS = ("elevenlabs", "gemini")
 
 ASSETS_DIR = Path(__file__).parent.parent / "podcast-assets"
 
@@ -84,13 +125,16 @@ SFX_PROMPTS = {
 # Preflight checks
 # ---------------------------------------------------------------------------
 
-def preflight() -> None:
-    """Verify required tools and credentials are available."""
+def preflight_common() -> None:
+    """Checks that apply regardless of selected TTS provider."""
     if not shutil.which("ffmpeg"):
         sys.exit(
             "❌  ffmpeg is not installed. pydub requires ffmpeg for audio processing.\n"
             "    Install it with: apt-get install ffmpeg  (or brew install ffmpeg on macOS)"
         )
+
+
+def preflight_elevenlabs() -> None:
     if not os.environ.get("ELEVENLABS_API_KEY"):
         sys.exit(
             "❌  ELEVENLABS_API_KEY is not set.\n"
@@ -99,13 +143,13 @@ def preflight() -> None:
         )
 
 
-def _get_client():
-    """Return a configured ElevenLabs client."""
-    try:
-        from elevenlabs import ElevenLabs  # type: ignore[import]
-    except ImportError:
-        sys.exit("❌  elevenlabs is not installed. Run: pip install elevenlabs")
-    return ElevenLabs(api_key=os.environ["ELEVENLABS_API_KEY"])
+def preflight_gemini() -> None:
+    if not os.environ.get("GEMINI_API_KEY"):
+        sys.exit(
+            "❌  GEMINI_API_KEY is not set.\n"
+            "    Add it to skills/.env or export it as an environment variable.\n"
+            "    Get a key at https://aistudio.google.com/app/apikey"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -126,10 +170,28 @@ _SOURCE_CITATION = re.compile(r"\s*\(Source:\s*([^)]+)\)")
 
 
 def resolve_voice_id(name_or_id: str) -> str:
-    """Resolve a voice name to its ElevenLabs ID, or pass through raw IDs."""
+    """Resolve a voice name to its ElevenLabs ID, or pass through raw IDs.
+
+    Kept for backwards compatibility with call sites that are ElevenLabs-
+    specific (ad-voice resolution inside parse_script, etc.). Prefer
+    backend.resolve_voice() for backend-agnostic code paths.
+    """
     lower = name_or_id.lower()
     if lower in VOICES:
         return VOICES[lower]
+    return name_or_id
+
+
+def resolve_gemini_voice(name_or_id: str) -> str:
+    """Resolve a voice name to its Gemini prebuilt voice name.
+
+    If the caller provided a friendly name (e.g. "george"), map it via
+    GEMINI_VOICES. Otherwise pass through unchanged so raw Gemini voice
+    names like "Zephyr" still work.
+    """
+    lower = name_or_id.lower()
+    if lower in GEMINI_VOICES:
+        return GEMINI_VOICES[lower]
     return name_or_id
 
 
@@ -263,42 +325,361 @@ def parse_script(script_path: Path, host_voice: str) -> tuple[list[dict], list[d
 # Audio generation
 # ---------------------------------------------------------------------------
 
-def generate_speech(text: str, voice_id: str, model_id: str, output_path: Path) -> None:
-    """Generate single-voice speech MP3."""
-    client = _get_client()
-    audio = client.text_to_speech.convert(
-        voice_id=voice_id,
-        text=text,
-        model_id=model_id,
-        output_format="mp3_44100_128",
-    )
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("wb") as fh:
-        for chunk in audio:
-            fh.write(chunk)
+# ---------------------------------------------------------------------------
+# Audio generation — backend abstraction
+# ---------------------------------------------------------------------------
 
 
-def generate_dialogue(lines: list[dict], model_id: str, output_path: Path) -> None:
-    """Generate multi-voice dialogue MP3 using the Text to Dialogue API."""
-    from elevenlabs.types import DialogueInput
+class TTSBackend:
+    """Protocol-ish base class for selectable TTS backends."""
 
-    client = _get_client()
-    inputs = [DialogueInput(text=ln["text"], voice_id=ln["voice"]) for ln in lines]
-    audio = client.text_to_dialogue.convert(
-        inputs=inputs,
-        model_id=model_id,
-        output_format="mp3_44100_128",
-    )
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("wb") as fh:
-        for chunk in audio:
-            fh.write(chunk)
+    name: str = ""
+    default_model: str = ""
+
+    def __init__(self, model: Optional[str] = None) -> None:
+        self.model = model or self.default_model
+
+    def resolve_voice(self, name_or_id: str) -> str:
+        raise NotImplementedError
+
+    def speech(self, text: str, voice: str, output_path: Path) -> None:
+        raise NotImplementedError
+
+    def dialogue(self, lines: list[dict], output_path: Path) -> None:
+        raise NotImplementedError
+
+    def sound_effect(self, prompt: str, duration: float, output_path: Path) -> None:
+        raise NotImplementedError
 
 
-def generate_or_load_asset(asset_name: str) -> Path:
+class ElevenLabsBackend(TTSBackend):
+    name = "elevenlabs"
+    default_model = DEFAULT_MODEL_ID
+
+    def __init__(self, model: Optional[str] = None) -> None:
+        super().__init__(model)
+        self._client = None
+
+    def _client_lazy(self):
+        if self._client is None:
+            try:
+                from elevenlabs import ElevenLabs  # type: ignore[import]
+            except ImportError:
+                sys.exit("❌  elevenlabs is not installed. Run: pip install elevenlabs")
+            self._client = ElevenLabs(api_key=os.environ["ELEVENLABS_API_KEY"])
+        return self._client
+
+    def resolve_voice(self, name_or_id: str) -> str:
+        return resolve_voice_id(name_or_id)
+
+    def speech(self, text: str, voice: str, output_path: Path) -> None:
+        client = self._client_lazy()
+        audio = client.text_to_speech.convert(
+            voice_id=voice,
+            text=text,
+            model_id=self.model,
+            output_format="mp3_44100_128",
+        )
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("wb") as fh:
+            for chunk in audio:
+                fh.write(chunk)
+
+    def dialogue(self, lines: list[dict], output_path: Path) -> None:
+        from elevenlabs.types import DialogueInput
+        client = self._client_lazy()
+        inputs = [DialogueInput(text=ln["text"], voice_id=ln["voice"]) for ln in lines]
+        audio = client.text_to_dialogue.convert(
+            inputs=inputs,
+            model_id=self.model,
+            output_format="mp3_44100_128",
+        )
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("wb") as fh:
+            for chunk in audio:
+                fh.write(chunk)
+
+    def sound_effect(self, prompt: str, duration: float, output_path: Path) -> None:
+        client = self._client_lazy()
+        audio = client.text_to_sound_effects.convert(
+            text=prompt,
+            duration_seconds=duration,
+            output_format="mp3_44100_128",
+        )
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with output_path.open("wb") as fh:
+            for chunk in audio:
+                fh.write(chunk)
+
+
+class GeminiBackend(TTSBackend):
+    """Gemini Flash 3.1 TTS. Respects the 25k-token request limit by chunking."""
+
+    name = "gemini"
+    default_model = DEFAULT_GEMINI_MODEL_ID
+
+    def __init__(self, model: Optional[str] = None) -> None:
+        super().__init__(model)
+        self._client = None
+        self._types = None
+        self._sfx_fallback: Optional[ElevenLabsBackend] = None
+
+    def _client_lazy(self):
+        if self._client is None:
+            try:
+                from google import genai  # type: ignore[import]
+                from google.genai import types as genai_types  # type: ignore[import]
+            except ImportError:
+                sys.exit("❌  google-genai is not installed. Run: pip install google-genai")
+            self._client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+            self._types = genai_types
+        return self._client
+
+    def resolve_voice(self, name_or_id: str) -> str:
+        return resolve_gemini_voice(name_or_id)
+
+    # -- token counting / chunking ------------------------------------------------
+
+    def _count_tokens(self, text: str) -> int:
+        """Use the SDK's count_tokens when available, else fall back to a heuristic."""
+        try:
+            client = self._client_lazy()
+            resp = client.models.count_tokens(model=self.model, contents=text)
+            return int(getattr(resp, "total_tokens", 0)) or _heuristic_tokens(text)
+        except Exception:
+            return _heuristic_tokens(text)
+
+    def _chunk_text(self, text: str) -> list[str]:
+        """Split *text* into chunks that fit under GEMINI_TOKEN_BUDGET tokens.
+
+        Uses sentence boundaries first; falls back to word boundaries for
+        any single sentence that exceeds the budget on its own. Accounting
+        is done in characters (budget * GEMINI_CHARS_PER_TOKEN) to avoid
+        per-piece rounding error accumulating across many small pieces.
+        """
+        if _heuristic_tokens(text) <= GEMINI_TOKEN_BUDGET:
+            return [text]
+
+        char_budget = GEMINI_TOKEN_BUDGET * GEMINI_CHARS_PER_TOKEN
+        sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+        chunks: list[str] = []
+        buf: list[str] = []
+        buf_chars = 0
+        for sentence in sentences:
+            if not sentence:
+                continue
+            s_chars = len(sentence)
+            if s_chars > char_budget:
+                if buf:
+                    chunks.append(" ".join(buf))
+                    buf, buf_chars = [], 0
+                chunks.extend(_split_by_words(sentence, GEMINI_TOKEN_BUDGET))
+                continue
+            extra = s_chars + (1 if buf else 0)
+            if buf_chars + extra > char_budget and buf:
+                chunks.append(" ".join(buf))
+                buf, buf_chars = [sentence], s_chars
+            else:
+                buf.append(sentence)
+                buf_chars += extra
+        if buf:
+            chunks.append(" ".join(buf))
+        return chunks
+
+    # -- PCM → AudioSegment -------------------------------------------------------
+
+    def _pcm_to_segment(self, pcm: bytes):
+        from pydub import AudioSegment
+        return AudioSegment(
+            data=pcm,
+            sample_width=GEMINI_PCM_SAMPLE_WIDTH,
+            frame_rate=GEMINI_PCM_SAMPLE_RATE,
+            channels=GEMINI_PCM_CHANNELS,
+        )
+
+    def _generate_pcm_single(self, text: str, voice_name: str) -> bytes:
+        client = self._client_lazy()
+        types = self._types
+        config = types.GenerateContentConfig(
+            response_modalities=["AUDIO"],
+            speech_config=types.SpeechConfig(
+                voice_config=types.VoiceConfig(
+                    prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_name),
+                ),
+            ),
+        )
+        response = client.models.generate_content(
+            model=self.model,
+            contents=text,
+            config=config,
+        )
+        return _extract_pcm(response)
+
+    def _generate_pcm_multi(self, prompt: str, speaker_voices: list[tuple[str, str]]) -> bytes:
+        client = self._client_lazy()
+        types = self._types
+        speaker_configs = [
+            types.SpeakerVoiceConfig(
+                speaker=speaker,
+                voice_config=types.VoiceConfig(
+                    prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice),
+                ),
+            )
+            for speaker, voice in speaker_voices
+        ]
+        config = types.GenerateContentConfig(
+            response_modalities=["AUDIO"],
+            speech_config=types.SpeechConfig(
+                multi_speaker_voice_config=types.MultiSpeakerVoiceConfig(
+                    speaker_voice_configs=speaker_configs,
+                ),
+            ),
+        )
+        response = client.models.generate_content(
+            model=self.model,
+            contents=prompt,
+            config=config,
+        )
+        return _extract_pcm(response)
+
+    # -- TTSBackend interface -----------------------------------------------------
+
+    def speech(self, text: str, voice: str, output_path: Path) -> None:
+        from pydub import AudioSegment
+        chunks = self._chunk_text(text)
+        if len(chunks) > 1:
+            print(f"    Gemini: splitting into {len(chunks)} chunk(s) (25k-token limit)")
+        combined: Optional[AudioSegment] = None
+        for idx, chunk in enumerate(chunks):
+            pcm = self._generate_pcm_single(chunk, voice)
+            seg = self._pcm_to_segment(pcm)
+            combined = seg if combined is None else combined + seg
+        assert combined is not None
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        combined.export(str(output_path), format="mp3", bitrate="128k")
+
+    def dialogue(self, lines: list[dict], output_path: Path) -> None:
+        from pydub import AudioSegment
+
+        unique_voices = []
+        for ln in lines:
+            if ln["voice"] not in unique_voices:
+                unique_voices.append(ln["voice"])
+
+        # Assemble text once so we can test the token budget.
+        speaker_map: dict[str, str] = {}
+        for idx, voice in enumerate(unique_voices):
+            speaker_map[voice] = f"Speaker{idx + 1}"
+        dialogue_text = "TTS the following conversation:\n" + "\n".join(
+            f"{speaker_map[ln['voice']]}: {ln['text']}" for ln in lines
+        )
+
+        use_multi = (
+            len(unique_voices) <= GEMINI_MAX_SPEAKERS_PER_REQUEST
+            and _heuristic_tokens(dialogue_text) <= GEMINI_TOKEN_BUDGET
+        )
+
+        if use_multi:
+            speaker_voices = [(speaker_map[v], v) for v in unique_voices]
+            pcm = self._generate_pcm_multi(dialogue_text, speaker_voices)
+            combined = self._pcm_to_segment(pcm)
+        else:
+            # Fallback: generate each line as single-speaker and concatenate.
+            print(
+                f"    Gemini: falling back to per-line synthesis "
+                f"({len(unique_voices)} voices, {len(lines)} line(s))"
+            )
+            combined: Optional[AudioSegment] = None
+            for ln in lines:
+                chunks = self._chunk_text(ln["text"])
+                for chunk in chunks:
+                    pcm = self._generate_pcm_single(chunk, ln["voice"])
+                    seg = self._pcm_to_segment(pcm)
+                    combined = seg if combined is None else combined + seg
+            assert combined is not None
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        combined.export(str(output_path), format="mp3", bitrate="128k")
+
+    def sound_effect(self, prompt: str, duration: float, output_path: Path) -> None:
+        """Gemini has no SFX endpoint — delegate to ElevenLabs."""
+        if self._sfx_fallback is None:
+            if not os.environ.get("ELEVENLABS_API_KEY"):
+                sys.exit(
+                    "❌  Gemini has no sound-effects API, and ELEVENLABS_API_KEY is not set "
+                    "for the fallback.\n"
+                    "    Either add ELEVENLABS_API_KEY to skills/.env, pre-cache the asset in "
+                    "podcast-assets/, or re-run with --no-music."
+                )
+            self._sfx_fallback = ElevenLabsBackend()
+        self._sfx_fallback.sound_effect(prompt, duration, output_path)
+
+
+# ---------------------------------------------------------------------------
+# Chunker helpers (module-level so they're testable independently)
+# ---------------------------------------------------------------------------
+
+def _heuristic_tokens(text: str) -> int:
+    """Rough char→token estimate used when count_tokens is unavailable."""
+    return max(1, len(text) // GEMINI_CHARS_PER_TOKEN)
+
+
+def _split_by_words(text: str, token_budget: int) -> list[str]:
+    """Split *text* on word boundaries so each piece fits under token_budget.
+
+    Tracks character count directly (budget * GEMINI_CHARS_PER_TOKEN) to avoid
+    per-word rounding error that would otherwise accumulate across many words.
     """
-    Return path to a cached audio asset, generating it via SFX API if missing.
-    """
+    char_budget = token_budget * GEMINI_CHARS_PER_TOKEN
+    words = text.split()
+    chunks: list[str] = []
+    buf: list[str] = []
+    buf_chars = 0
+    for word in words:
+        extra = len(word) + (1 if buf else 0)  # space joining, if buf non-empty
+        if buf_chars + extra > char_budget and buf:
+            chunks.append(" ".join(buf))
+            buf, buf_chars = [word], len(word)
+        else:
+            buf.append(word)
+            buf_chars += extra
+    if buf:
+        chunks.append(" ".join(buf))
+    return chunks
+
+
+def _extract_pcm(response) -> bytes:
+    """Pull raw PCM bytes from a Gemini generate_content response."""
+    try:
+        return response.candidates[0].content.parts[0].inline_data.data
+    except (AttributeError, IndexError) as exc:
+        sys.exit(f"❌  Gemini response did not contain audio data: {exc}")
+
+
+# ---------------------------------------------------------------------------
+# Backend factory
+# ---------------------------------------------------------------------------
+
+def get_backend(provider: str, model: Optional[str] = None) -> TTSBackend:
+    provider = provider.lower()
+    if provider == "elevenlabs":
+        preflight_elevenlabs()
+        return ElevenLabsBackend(model=model)
+    if provider == "gemini":
+        preflight_gemini()
+        return GeminiBackend(model=model)
+    sys.exit(
+        f"❌  Unknown TTS provider: {provider!r}. "
+        f"Expected one of: {', '.join(SUPPORTED_PROVIDERS)}."
+    )
+
+
+# ---------------------------------------------------------------------------
+# Asset generation (SFX / music)
+# ---------------------------------------------------------------------------
+
+def generate_or_load_asset(asset_name: str, backend: TTSBackend) -> Path:
+    """Return path to a cached audio asset, generating it via *backend* if missing."""
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
     asset_path = ASSETS_DIR / f"{asset_name}.mp3"
     if asset_path.is_file():
@@ -310,15 +691,7 @@ def generate_or_load_asset(asset_name: str) -> Path:
 
     prompt, duration = SFX_PROMPTS[asset_name]
     print(f"  Generating SFX asset '{asset_name}' ({duration}s)...")
-    client = _get_client()
-    audio = client.text_to_sound_effects.convert(
-        text=prompt,
-        duration_seconds=duration,
-        output_format="mp3_44100_128",
-    )
-    with asset_path.open("wb") as fh:
-        for chunk in audio:
-            fh.write(chunk)
+    backend.sound_effect(prompt, duration, asset_path)
     print(f"  Saved asset: {asset_path}")
     return asset_path
 
@@ -327,7 +700,7 @@ def generate_or_load_asset(asset_name: str) -> Path:
 # Audio assembly
 # ---------------------------------------------------------------------------
 
-def assemble_podcast(segments: list[dict], model_id: str, tmp_dir: Path) -> bytes:
+def assemble_podcast(segments: list[dict], backend: TTSBackend, tmp_dir: Path) -> bytes:
     """
     Generate audio for each segment and concatenate into a single MP3.
 
@@ -338,11 +711,26 @@ def assemble_podcast(segments: list[dict], model_id: str, tmp_dir: Path) -> byte
     parts: list[AudioSegment] = []
     seg_idx = 0
 
+    # parse_script already pre-resolves ad/host voices to ElevenLabs IDs via
+    # resolve_voice_id. For Gemini we need to re-map those back to friendly
+    # names before asking the backend for its native voice. Build a reverse
+    # lookup once.
+    elevenlabs_id_to_name = {vid: name for name, vid in VOICES.items()}
+
+    def _resolve(raw_voice: str) -> str:
+        """Map a stored voice token to the selected backend's voice identifier."""
+        if isinstance(backend, ElevenLabsBackend):
+            return resolve_voice_id(raw_voice)
+        # For non-ElevenLabs backends: if the stored token is an ElevenLabs ID
+        # from parse_script, translate back to the friendly name first.
+        friendly = elevenlabs_id_to_name.get(raw_voice, raw_voice)
+        return backend.resolve_voice(friendly)
+
     for seg in segments:
         stype = seg["type"]
 
         if stype == "music":
-            asset_path = generate_or_load_asset(seg["asset"])
+            asset_path = generate_or_load_asset(seg["asset"], backend)
             parts.append(AudioSegment.from_mp3(str(asset_path)))
             print(f"  [{seg_idx}] Music: {seg['asset']}")
 
@@ -355,14 +743,18 @@ def assemble_podcast(segments: list[dict], model_id: str, tmp_dir: Path) -> byte
             seg_path = tmp_dir / f"seg_{seg_idx:03d}_speech.mp3"
             word_count = len(seg["text"].split())
             print(f"  [{seg_idx}] Speech: {word_count} words (voice: {seg['voice']})")
-            generate_speech(seg["text"], resolve_voice_id(seg["voice"]), model_id, seg_path)
+            backend.speech(seg["text"], _resolve(seg["voice"]), seg_path)
             parts.append(AudioSegment.from_mp3(str(seg_path)))
 
         elif stype == "ad":
             seg_path = tmp_dir / f"seg_{seg_idx:03d}_ad.mp3"
             voices_used = set(ln["voice"] for ln in seg["lines"])
             print(f"  [{seg_idx}] Ad: {len(seg['lines'])} lines, {len(voices_used)} voice(s)")
-            generate_dialogue(seg["lines"], model_id, seg_path)
+            resolved_lines = [
+                {"voice": _resolve(ln["voice"]), "text": ln["text"]}
+                for ln in seg["lines"]
+            ]
+            backend.dialogue(resolved_lines, seg_path)
             parts.append(AudioSegment.from_mp3(str(seg_path)))
 
         seg_idx += 1
@@ -505,6 +897,7 @@ def upload_to_s3(local_path: Path, bucket: str, prefix: str) -> str:
 
 def parse_args() -> argparse.Namespace:
     voice_names = ", ".join(VOICES.keys())
+    default_provider = os.environ.get("TTS_PROVIDER", "elevenlabs").lower()
     parser = argparse.ArgumentParser(
         description="Convert a podcast script to MP3 with multi-voice support."
     )
@@ -532,9 +925,22 @@ def parse_args() -> argparse.Namespace:
         help=f"Host voice name or ID. Available: {voice_names} (default: {DEFAULT_VOICE}).",
     )
     parser.add_argument(
+        "--tts-provider",
+        choices=SUPPORTED_PROVIDERS,
+        default=default_provider if default_provider in SUPPORTED_PROVIDERS else "elevenlabs",
+        dest="tts_provider",
+        help=(
+            "Which TTS backend to use. Default: elevenlabs (or $TTS_PROVIDER if set). "
+            "gemini uses Google's Gemini Flash 3.1 TTS preview."
+        ),
+    )
+    parser.add_argument(
         "--model",
-        default=DEFAULT_MODEL_ID,
-        help=f"ElevenLabs model ID (default: {DEFAULT_MODEL_ID}).",
+        default=None,
+        help=(
+            f"Model ID (backend-specific). Defaults: {DEFAULT_MODEL_ID} for "
+            f"elevenlabs, {DEFAULT_GEMINI_MODEL_ID} for gemini."
+        ),
     )
     parser.add_argument(
         "--no-music", action="store_true",
@@ -549,7 +955,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    preflight()
+    preflight_common()
 
     script_path = Path(args.script)
     if not script_path.is_file():
@@ -557,12 +963,16 @@ def main() -> None:
 
     output_path = Path(args.output)
 
+    # --- Build backend ---
+    backend = get_backend(args.tts_provider, model=args.model)
+
     # --- Resolve host voice ---
     host_voice = args.host_voice.lower()
-    host_voice_id = resolve_voice_id(host_voice)
-    print(f"📄 Script:  {script_path}")
-    print(f"🎙️  Host:    {host_voice} ({host_voice_id})")
-    print(f"🤖 Model:   {args.model}")
+    host_voice_id = resolve_voice_id(host_voice)  # ElevenLabs ID for parse_script
+    print(f"📄 Script:   {script_path}")
+    print(f"🧠 Backend:  {backend.name}")
+    print(f"🎙️  Host:     {host_voice} ({backend.resolve_voice(host_voice)})")
+    print(f"🤖 Model:    {backend.model}")
 
     # --- Parse script into segments ---
     print("\n🔍 Parsing script...")
@@ -586,7 +996,7 @@ def main() -> None:
     print("\n🎵 Generating audio...")
     with tempfile.TemporaryDirectory(prefix="podcast_") as tmp:
         tmp_dir = Path(tmp)
-        mp3_bytes = assemble_podcast(segments, args.model, tmp_dir)
+        mp3_bytes = assemble_podcast(segments, backend, tmp_dir)
 
     # Write final MP3
     output_path.parent.mkdir(parents=True, exist_ok=True)

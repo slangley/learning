@@ -22,7 +22,12 @@ script, and convert it to an MP3 that gets automatically uploaded to Dropbox.
 pip install -r skills/requirements.txt
 ```
 
-### 2. Set up ElevenLabs credentials
+### 2. Set up TTS credentials
+
+You need at least one of the following. The default backend is ElevenLabs; set
+`--tts-provider gemini` (or `TTS_PROVIDER=gemini`) to switch.
+
+**ElevenLabs** (default — required for SFX/music jingles):
 
 1. Go to <https://elevenlabs.io/app/settings/api-keys> and create an API key.
 2. Copy `skills/.env.example` to `skills/.env`:
@@ -33,6 +38,15 @@ pip install -r skills/requirements.txt
    ```
    ELEVENLABS_API_KEY=your_key_here
    ```
+
+**Gemini Flash 3.1 TTS** (optional — alternate speech backend):
+
+1. Go to <https://aistudio.google.com/app/apikey> and create a Gemini API key.
+2. Add it to `skills/.env`:
+   ```
+   GEMINI_API_KEY=your_key_here
+   ```
+3. Invoke with `--tts-provider gemini`. The backend auto-chunks input to respect the 25,000-token per-request limit. Music jingles still use ElevenLabs (cached after first run) unless you pass `--no-music`.
 
 ### 3. Set up AWS credentials
 
@@ -141,8 +155,10 @@ python skills/podcast_to_mp3.py \
 | `--output` | *(required)* | Output path for the MP3 |
 | `--s3-bucket` | `$S3_BUCKET` | S3 bucket to upload the MP3 to |
 | `--s3-prefix` | `podcasts/` | Key prefix (folder) inside the bucket |
-| `--voice` | `JBFqnCBsd6RMkjVDRZzb` (George) | ElevenLabs voice ID |
-| `--model` | `eleven_turbo_v2_5` | ElevenLabs model ID |
+| `--host-voice` | `george` | Voice name (friendly names work on both backends) or raw voice ID |
+| `--tts-provider` | `elevenlabs` | Speech backend — `elevenlabs` or `gemini` (or set `$TTS_PROVIDER`) |
+| `--model` | backend-specific | `eleven_v3` for elevenlabs, `gemini-3.1-flash-tts-preview` for gemini |
+| `--no-music` | `false` | Skip intro/outro jingles |
 | `--no-upload` | `false` | Skip S3 upload (local test mode) |
 
 ---
