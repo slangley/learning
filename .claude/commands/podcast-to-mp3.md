@@ -31,7 +31,7 @@ Before running the conversion, verify the environment is ready:
 
 1. Check that `skills/requirements.txt` exists. If not, inform the user to run `pip install elevenlabs google-genai boto3 pydub pyyaml` manually.
 2. If `--tts-provider` is `gemini`, require `GEMINI_API_KEY`. Otherwise (default: `elevenlabs`), require `ELEVENLABS_API_KEY`. The value can come from the environment or `skills/.env`. If missing, print the matching setup instructions below and stop.
-3. If `--tts-provider gemini` is used without `--no-music` and `ELEVENLABS_API_KEY` is also missing, warn the user that music jingles require ElevenLabs (Gemini has no SFX endpoint) unless the intro/outro assets are already cached in `podcast-assets/`.
+3. If `--tts-provider gemini` is used and the script references any SFX (music markers or `{sfx:...}` markers) that aren't already cached under `podcast-assets/`, `ELEVENLABS_API_KEY` is required as well — Gemini has no SFX endpoint, so the cached assets are always generated via ElevenLabs (once) and then committed for reuse.
 4. Check that either `S3_BUCKET` is set or `--s3-bucket` is passed (unless `--no-upload`). If missing, print S3 setup instructions and stop.
 5. Check that `ffmpeg` is installed (required by pydub). If missing, print install instructions and stop.
 6. Read the script file. If it doesn't exist, stop with a clear error message.
@@ -105,8 +105,10 @@ Add `--no-music` if the user passed it. Omit `--model` to use the backend's defa
 
 ### Gemini backend notes
 
-- The Gemini backend automatically chunks input to honour the 25,000-token per-request limit. Long scripts are split on sentence boundaries and the resulting PCM chunks are concatenated seamlessly.
+- The Gemini backend automatically chunks input to honour the 25,000-token per-request limit (the actual Gemini Flash 3.1 TTS context window is 32k; we use 20k as a safety budget). Long scripts are split on sentence boundaries and the resulting PCM chunks are concatenated seamlessly.
 - Multi-speaker ads: Gemini supports up to 2 distinct speakers per request. Ads with 3+ voices fall back to per-line single-speaker synthesis.
+- Inline audio tags (`[laughs]`, `[sighs]`, `[whispers]`, `[excited]`, `[shouting]`, `[gasp]`, `[giggles]`, `[anger]`, `[joy]`, `[fear]`, etc. — 50+ total) are supported natively, same bracket syntax as ElevenLabs v3.
+- SFX (`{sfx:...}` markers, music jingles, ad-boundary dings) are always generated via ElevenLabs' SFX endpoint because Gemini has no SFX API. The generated MP3 is cached under `podcast-assets/` and committed, so the ElevenLabs call only happens on first use.
 - Friendly voice names (george, rachel, dave, …) are mapped to comparable Gemini prebuilt voices (Charon, Aoede, Puck, …). You can also pass a raw Gemini voice name (Zephyr, Puck, Kore, Leda, Fenrir, …) directly via `--host-voice`.
 
 Where `<output-mp3-path>` mirrors the script path but with a `.mp3` extension inside a `podcast-mp3s/` directory (create it if needed).
@@ -119,15 +121,16 @@ The script supports these markers (handled automatically by the Python script):
 
 | Marker | Behavior |
 |--------|----------|
-| `[MUSIC - INTRO]` | Inserts cached intro jingle (generated via ElevenLabs SFX on first run) |
-| `[MUSIC - OUTRO]` | Inserts cached outro jingle |
+| `[MUSIC - INTRO]` | Inserts cached intro jingle from `podcast-assets/intro.mp3` (equivalent to `{sfx:intro}`) |
+| `[MUSIC - OUTRO]` | Inserts cached outro jingle from `podcast-assets/outro.mp3` (equivalent to `{sfx:outro}`) |
 | `[PAUSE]` | Inserts 1 second of silence |
 | `[HOST] text` | Host speech — single-voice TTS using `--host-voice` |
-| `[AD BREAK]` | Starts an ad segment; `[ding]` audio tag auto-prepended |
-| `[VOICE:name] text` | Ad/guest line — uses named voice via Text to Dialogue API |
-| `[AD END]` | Ends ad segment; `[ding]` audio tag auto-appended |
+| `[AD BREAK]` | Starts an ad segment; a cached `ding` SFX plays before and after automatically |
+| `[VOICE:name] text` | Ad/guest line. ElevenLabs uses Text-to-Dialogue; Gemini uses MultiSpeakerVoiceConfig (up to 2 speakers per request, falls back to per-line synthesis otherwise) |
+| `[AD END]` | Ends ad segment |
 | `(Source: name, date)` | Stripped from audio; collected into episode YAML metadata |
-| `[laughs]`, `[sighs]`, etc. | ElevenLabs v3 audio tags — rendered as sounds/emotions |
+| `[laughs]`, `[sighs]`, `[whispers]`, `[excited]`, `[shouting]`, `[gasp]`, `[giggles]`, `[anger]`, `[joy]`, etc. | Inline expressive audio tags rendered natively by both ElevenLabs v3 and Gemini TTS (Gemini supports 50+ tags). |
+| `{sfx:description}` | Cached SFX asset. If `description` matches a registered name (`ding`, `intro`, `outro`) the registered prompt is used; otherwise `description` is passed to ElevenLabs' SFX endpoint verbatim and the result is saved to a deterministic `podcast-assets/sfx_<slug>_<hash>.mp3` path. Assets are committed so every subsequent run — and both TTS backends — reuse the same audio. Example: `{sfx:retro 8-bit game-over chime}`. |
 
 ## Step 3 — Report results
 

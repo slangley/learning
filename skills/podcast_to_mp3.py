@@ -116,9 +116,13 @@ SUPPORTED_PROVIDERS = ("elevenlabs", "gemini")
 
 ASSETS_DIR = Path(__file__).parent.parent / "podcast-assets"
 
+# Cached audio assets. Generated on first use via ElevenLabs' SFX endpoint,
+# saved to podcast-assets/, and committed to the repo so subsequent episodes
+# (and both TTS backends) reuse the exact same audio. (prompt, duration_s).
 SFX_PROMPTS = {
     "intro": ("upbeat podcast intro jingle, energetic and modern", 8.0),
     "outro": ("mellow podcast outro music, smooth fade out", 6.0),
+    "ding":  ("short clean notification bell ding, single chime", 1.0),
 }
 
 # ---------------------------------------------------------------------------
@@ -219,10 +223,12 @@ def parse_script(script_path: Path, host_voice: str) -> tuple[list[dict], list[d
     def flush_ad():
         nonlocal ad_lines, in_ad
         if ad_lines:
-            # Prepend [ding] to first line, append [ding] to last line
-            ad_lines[0]["text"] = "[ding] " + ad_lines[0]["text"]
-            ad_lines[-1]["text"] = ad_lines[-1]["text"] + " [ding]"
+            # Bracket the ad with a standalone "ding" SFX segment. Using a
+            # cached audio asset (rather than an inline ElevenLabs v3 [ding]
+            # tag) keeps the sound effect consistent across TTS backends.
+            segments.append({"type": "sfx", "asset": "ding"})
             segments.append({"type": "ad", "lines": list(ad_lines)})
+            segments.append({"type": "sfx", "asset": "ding"})
             ad_lines = []
         in_ad = False
 
@@ -322,8 +328,81 @@ def parse_script(script_path: Path, host_voice: str) -> tuple[list[dict], list[d
 
 
 # ---------------------------------------------------------------------------
-# Audio generation
+# Inline {sfx:...} expansion
 # ---------------------------------------------------------------------------
+
+def expand_inline_sfx(segments: list[dict]) -> list[dict]:
+    """Split inline ``{sfx:description}`` markers in speech and ad lines into
+    standalone ``sfx`` segments that reference a cached (and committed) asset.
+
+    A host line like::
+
+        [HOST] Welcome back {sfx:stinger chime} and today we're...
+
+    becomes three segments: speech("Welcome back"), sfx(stinger chime),
+    speech("and today we're..."). The sfx description either matches a key
+    in ``SFX_PROMPTS`` or is used verbatim as an ElevenLabs SFX prompt; in
+    both cases the generated MP3 lives under ``podcast-assets/`` and is
+    reused on subsequent runs.
+    """
+    out: list[dict] = []
+    for seg in segments:
+        if seg["type"] == "speech" and _INLINE_SFX_RE.search(seg["text"]):
+            out.extend(_split_speech_on_sfx(seg))
+        elif seg["type"] == "ad" and any(_INLINE_SFX_RE.search(ln["text"]) for ln in seg["lines"]):
+            out.extend(_split_ad_on_sfx(seg))
+        else:
+            out.append(seg)
+    return out
+
+
+def _sfx_segment(description: str) -> dict:
+    asset_name, prompt, duration = resolve_sfx_request(description)
+    return {"type": "sfx", "asset": asset_name, "prompt": prompt, "duration": duration}
+
+
+def _split_speech_on_sfx(seg: dict) -> list[dict]:
+    parts = _INLINE_SFX_RE.split(seg["text"])
+    result: list[dict] = []
+    for i, part in enumerate(parts):
+        if i % 2 == 0:
+            text = part.strip()
+            if text:
+                result.append({"type": "speech", "voice": seg["voice"], "text": text})
+        else:
+            result.append(_sfx_segment(part))
+    return result
+
+
+def _split_ad_on_sfx(seg: dict) -> list[dict]:
+    """Flatten an ad whose lines contain ``{sfx:...}`` — each marker closes
+    the current sub-ad, emits an sfx segment, and opens a new sub-ad.
+    """
+    result: list[dict] = []
+    sub_lines: list[dict] = []
+
+    def flush():
+        nonlocal sub_lines
+        if sub_lines:
+            result.append({"type": "ad", "lines": list(sub_lines)})
+            sub_lines = []
+
+    for ln in seg["lines"]:
+        if not _INLINE_SFX_RE.search(ln["text"]):
+            sub_lines.append(ln)
+            continue
+        parts = _INLINE_SFX_RE.split(ln["text"])
+        for i, part in enumerate(parts):
+            if i % 2 == 0:
+                text = part.strip()
+                if text:
+                    sub_lines.append({"voice": ln["voice"], "text": text})
+            else:
+                flush()
+                result.append(_sfx_segment(part))
+    flush()
+    return result
+
 
 # ---------------------------------------------------------------------------
 # Audio generation — backend abstraction
@@ -546,6 +625,8 @@ class GeminiBackend(TTSBackend):
 
     def speech(self, text: str, voice: str, output_path: Path) -> None:
         from pydub import AudioSegment
+        # Gemini TTS supports inline audio tags ([laughs], [sighs], [whispers],
+        # [excited], [shouting], etc.) natively, so we pass text through as-is.
         chunks = self._chunk_text(text)
         if len(chunks) > 1:
             print(f"    Gemini: splitting into {len(chunks)} chunk(s) (25k-token limit)")
@@ -561,6 +642,8 @@ class GeminiBackend(TTSBackend):
     def dialogue(self, lines: list[dict], output_path: Path) -> None:
         from pydub import AudioSegment
 
+        # Gemini supports the same [tag] audio cues (laughs, sighs, whispers,
+        # excited, etc.) as ElevenLabs, so we pass text through unchanged.
         unique_voices = []
         for ln in lines:
             if ln["voice"] not in unique_voices:
@@ -571,7 +654,7 @@ class GeminiBackend(TTSBackend):
         for idx, voice in enumerate(unique_voices):
             speaker_map[voice] = f"Speaker{idx + 1}"
         dialogue_text = "TTS the following conversation:\n" + "\n".join(
-            f"{speaker_map[ln['voice']]}: {ln['text']}" for ln in lines
+            f"{speaker_map[ln['voice']]}: {ln['text']}" for ln in cleaned
         )
 
         use_multi = (
@@ -584,13 +667,12 @@ class GeminiBackend(TTSBackend):
             pcm = self._generate_pcm_multi(dialogue_text, speaker_voices)
             combined = self._pcm_to_segment(pcm)
         else:
-            # Fallback: generate each line as single-speaker and concatenate.
             print(
                 f"    Gemini: falling back to per-line synthesis "
                 f"({len(unique_voices)} voices, {len(lines)} line(s))"
             )
             combined: Optional[AudioSegment] = None
-            for ln in lines:
+            for ln in cleaned:
                 chunks = self._chunk_text(ln["text"])
                 for chunk in chunks:
                     pcm = self._generate_pcm_single(chunk, ln["voice"])
@@ -656,6 +738,41 @@ def _extract_pcm(response) -> bytes:
         sys.exit(f"❌  Gemini response did not contain audio data: {exc}")
 
 
+# Inline SFX marker: {sfx:description}. Distinct from [audio tags] in square
+# brackets (which both backends render natively). The part after "sfx:" is
+# either a registered name in SFX_PROMPTS or a free-form ElevenLabs SFX
+# prompt; either way the generated/cached audio replaces the marker in the
+# final assembly.
+_INLINE_SFX_RE = re.compile(r"\{sfx:([^}]+)\}", re.IGNORECASE)
+
+DEFAULT_SFX_DURATION = 2.0
+
+
+def _slugify(s: str, max_len: int = 40) -> str:
+    s = re.sub(r"[^a-z0-9\s-]", "", s.lower())
+    s = re.sub(r"\s+", "-", s.strip())
+    return s[:max_len].rstrip("-") or "sfx"
+
+
+def resolve_sfx_request(description: str) -> tuple[str, str, float]:
+    """Map an inline {sfx:...} description to (asset_name, prompt, duration).
+
+    - If *description* (lowercased, stripped) matches a key in SFX_PROMPTS the
+      registered prompt + duration are used.
+    - Otherwise *description* is treated as a free-form SFX prompt; the asset
+      name is derived from a content hash + slug so the same description
+      always resolves to the same cache file and commits deterministically.
+    """
+    key = description.strip().lower()
+    if key in SFX_PROMPTS:
+        prompt, duration = SFX_PROMPTS[key]
+        return key, prompt, duration
+    import hashlib
+    h = hashlib.sha1(key.encode("utf-8")).hexdigest()[:8]
+    asset_name = f"sfx_{_slugify(description)}_{h}"
+    return asset_name, description.strip(), DEFAULT_SFX_DURATION
+
+
 # ---------------------------------------------------------------------------
 # Backend factory
 # ---------------------------------------------------------------------------
@@ -678,18 +795,33 @@ def get_backend(provider: str, model: Optional[str] = None) -> TTSBackend:
 # Asset generation (SFX / music)
 # ---------------------------------------------------------------------------
 
-def generate_or_load_asset(asset_name: str, backend: TTSBackend) -> Path:
-    """Return path to a cached audio asset, generating it via *backend* if missing."""
+def generate_or_load_asset(
+    asset_name: str,
+    backend: TTSBackend,
+    prompt: Optional[str] = None,
+    duration: Optional[float] = None,
+) -> Path:
+    """Return path to a cached audio asset, generating it via *backend* if missing.
+
+    If *prompt* / *duration* are provided they override the SFX_PROMPTS
+    registry lookup — used for ad-hoc inline {sfx:description} markers.
+    """
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
     asset_path = ASSETS_DIR / f"{asset_name}.mp3"
     if asset_path.is_file():
         print(f"  Cached asset: {asset_path}")
         return asset_path
 
-    if asset_name not in SFX_PROMPTS:
-        sys.exit(f"❌  Unknown asset: {asset_name}. Expected one of: {list(SFX_PROMPTS.keys())}")
+    if prompt is None or duration is None:
+        if asset_name not in SFX_PROMPTS:
+            sys.exit(
+                f"❌  Unknown asset: {asset_name!r}. Not in SFX_PROMPTS and no "
+                "inline prompt provided."
+            )
+        reg_prompt, reg_duration = SFX_PROMPTS[asset_name]
+        prompt = prompt if prompt is not None else reg_prompt
+        duration = duration if duration is not None else reg_duration
 
-    prompt, duration = SFX_PROMPTS[asset_name]
     print(f"  Generating SFX asset '{asset_name}' ({duration}s)...")
     backend.sound_effect(prompt, duration, asset_path)
     print(f"  Saved asset: {asset_path}")
@@ -733,6 +865,16 @@ def assemble_podcast(segments: list[dict], backend: TTSBackend, tmp_dir: Path) -
             asset_path = generate_or_load_asset(seg["asset"], backend)
             parts.append(AudioSegment.from_mp3(str(asset_path)))
             print(f"  [{seg_idx}] Music: {seg['asset']}")
+
+        elif stype == "sfx":
+            asset_path = generate_or_load_asset(
+                seg["asset"],
+                backend,
+                prompt=seg.get("prompt"),
+                duration=seg.get("duration"),
+            )
+            parts.append(AudioSegment.from_mp3(str(asset_path)))
+            print(f"  [{seg_idx}] SFX: {seg['asset']}")
 
         elif stype == "pause":
             ms = seg.get("duration_ms", 1000)
@@ -977,6 +1119,7 @@ def main() -> None:
     # --- Parse script into segments ---
     print("\n🔍 Parsing script...")
     segments, sources = parse_script(script_path, host_voice)
+    segments = expand_inline_sfx(segments)
 
     # Filter out music segments if --no-music
     if args.no_music:
