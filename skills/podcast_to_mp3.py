@@ -556,7 +556,11 @@ class GeminiBackend(TTSBackend):
             combined = seg if combined is None else combined + seg
         assert combined is not None
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        combined.export(str(output_path), format="mp3", bitrate="128k")
+        fmt = "wav" if output_path.suffix.lower() == ".wav" else "mp3"
+        kwargs: dict = {"format": fmt}
+        if fmt == "mp3":
+            kwargs["bitrate"] = "128k"
+        combined.export(str(output_path), **kwargs)
 
     def dialogue(self, lines: list[dict], output_path: Path) -> None:
         from pydub import AudioSegment
@@ -599,7 +603,11 @@ class GeminiBackend(TTSBackend):
             assert combined is not None
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        combined.export(str(output_path), format="mp3", bitrate="128k")
+        fmt = "wav" if output_path.suffix.lower() == ".wav" else "mp3"
+        kwargs: dict = {"format": fmt}
+        if fmt == "mp3":
+            kwargs["bitrate"] = "128k"
+        combined.export(str(output_path), **kwargs)
 
     def sound_effect(self, prompt: str, duration: float, output_path: Path) -> None:
         """Gemini has no SFX endpoint — delegate to ElevenLabs."""
@@ -700,6 +708,18 @@ def generate_or_load_asset(asset_name: str, backend: TTSBackend) -> Path:
 # Audio assembly
 # ---------------------------------------------------------------------------
 
+# Target RMS loudness for TTS segments (-14 dBFS matches Spotify/Apple Podcasts spec).
+_TARGET_DBFS = -14.0
+
+
+def _normalize_segment(seg):
+    """Normalize an AudioSegment to _TARGET_DBFS RMS. Returns unchanged if silent."""
+    from pydub import AudioSegment
+    if seg.dBFS == float("-inf"):
+        return seg
+    return seg.apply_gain(_TARGET_DBFS - seg.dBFS)
+
+
 def assemble_podcast(segments: list[dict], backend: TTSBackend, tmp_dir: Path) -> bytes:
     """
     Generate audio for each segment and concatenate into a single MP3.
@@ -710,6 +730,9 @@ def assemble_podcast(segments: list[dict], backend: TTSBackend, tmp_dir: Path) -
 
     parts: list[AudioSegment] = []
     seg_idx = 0
+    # Gemini returns raw PCM; use lossless WAV for intermediate files so we
+    # avoid a decode→encode→decode chain that causes progressive level drift.
+    use_wav_intermediates = isinstance(backend, GeminiBackend)
 
     # parse_script already pre-resolves ad/host voices to ElevenLabs IDs via
     # resolve_voice_id. For Gemini we need to re-map those back to friendly
@@ -740,14 +763,17 @@ def assemble_podcast(segments: list[dict], backend: TTSBackend, tmp_dir: Path) -
             print(f"  [{seg_idx}] Pause: {ms}ms")
 
         elif stype == "speech":
-            seg_path = tmp_dir / f"seg_{seg_idx:03d}_speech.mp3"
+            ext = ".wav" if use_wav_intermediates else ".mp3"
+            seg_path = tmp_dir / f"seg_{seg_idx:03d}_speech{ext}"
             word_count = len(seg["text"].split())
             print(f"  [{seg_idx}] Speech: {word_count} words (voice: {seg['voice']})")
             backend.speech(seg["text"], _resolve(seg["voice"]), seg_path)
-            parts.append(AudioSegment.from_mp3(str(seg_path)))
+            raw = AudioSegment.from_file(str(seg_path))
+            parts.append(_normalize_segment(raw))
 
         elif stype == "ad":
-            seg_path = tmp_dir / f"seg_{seg_idx:03d}_ad.mp3"
+            ext = ".wav" if use_wav_intermediates else ".mp3"
+            seg_path = tmp_dir / f"seg_{seg_idx:03d}_ad{ext}"
             voices_used = set(ln["voice"] for ln in seg["lines"])
             print(f"  [{seg_idx}] Ad: {len(seg['lines'])} lines, {len(voices_used)} voice(s)")
             resolved_lines = [
@@ -755,7 +781,8 @@ def assemble_podcast(segments: list[dict], backend: TTSBackend, tmp_dir: Path) -
                 for ln in seg["lines"]
             ]
             backend.dialogue(resolved_lines, seg_path)
-            parts.append(AudioSegment.from_mp3(str(seg_path)))
+            raw = AudioSegment.from_file(str(seg_path))
+            parts.append(_normalize_segment(raw))
 
         seg_idx += 1
 
