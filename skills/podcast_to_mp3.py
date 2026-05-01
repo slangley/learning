@@ -60,19 +60,19 @@ _load_dotenv(Path(__file__).parent / ".env")
 # ---------------------------------------------------------------------------
 
 VOICES = {
-    "george":  "JBFqnCBsd6RMkjVDRZzb",
+    "george":  "JBFqnCBsd6RMkjVDRZzb",   # George  - Warm, Captivating Storyteller
     "rachel":  "cgSgspJ2msm6clMCkdW9",   # Jessica - Playful, Bright, Warm
-    "dave":    "iP95p4xoKVk53GoZ742B",   # Chris - Charming, Down-to-Earth
-    "josh":    "TxGEqnHWrfWFTfGW9XjX",
-    "adam":    "pNInz6obpgDQGcFmaJgB",
-    "sam":     "yoZ06aMxZJJ28mfd3POQ",
-    "sarah":   "EXAVITQu4vr4xnSDxMaL",
-    "brian":   "nPczCjzI2devNBz1zQrb",
-    "lily":    "pFZP5JQG7iQjIQuC4Bku",
-    "matilda": "XrExE9yKIg1WjnnlVkGX",
-    "antoni":  "ErXwobaYiN019PkySvjV",
-    "arnold":  "VR6AewLTigWG4xSOukaG",
-    "domi":    "AZnzlk1XvdvUeBnXmlld",
+    "dave":    "iP95p4xoKVk53GoZ742B",   # Chris   - Charming, Down-to-Earth
+    "josh":    "onwK4e9ZLuTAKqWW03F9",   # Daniel  - Steady Broadcaster (replaces retired Josh)
+    "adam":    "pNInz6obpgDQGcFmaJgB",   # Adam    - Dominant, Firm
+    "sam":     "SAz9YHcvj6GT2YYXdXww",   # River   - Relaxed, Neutral, Informative (replaces retired Sam)
+    "sarah":   "EXAVITQu4vr4xnSDxMaL",   # Sarah   - Mature, Reassuring, Confident
+    "brian":   "nPczCjzI2devNBz1zQrb",   # Brian   - Deep, Resonant and Comforting
+    "lily":    "pFZP5JQG7iQjIQuC4Bku",   # Lily    - Velvety Actress
+    "matilda": "XrExE9yKIg1WjnnlVkGX",   # Matilda - Knowledgable, Professional
+    "antoni":  "cjVigY5qzO86Huf0OWal",   # Eric    - Smooth, Trustworthy (replaces retired Antoni)
+    "arnold":  "IKne3meq5aSn9XLyUdCD",   # Charlie - Deep, Confident, Energetic (replaces retired Arnold)
+    "domi":    "Xb7hH8MSUJpSbSDYk0k2",   # Alice   - Clear, Engaging Educator (replaces retired Domi)
 }
 
 # Friendly-name → Gemini prebuilt voice. Chosen to roughly match the
@@ -277,8 +277,14 @@ def parse_script(script_path: Path, host_voice: str) -> tuple[list[dict], list[d
                 flush_ad()
                 continue
 
-            # Headings / markdown separators — skip
+            # Headings / markdown separators — flush pending host text and skip.
+            # Flushing here keeps each named segment its own TTS call so that
+            # per-segment normalization is applied at section granularity rather
+            # than across an entire inter-ad block.  Without this, ElevenLabs
+            # drifts quieter inside long generations and the single RMS average
+            # cannot correct it, producing the progressive level-fade bug.
             if _HEADING.match(line):
+                flush_host()
                 continue
 
             # Inside ad block — look for [VOICE:name] lines
@@ -710,14 +716,41 @@ def generate_or_load_asset(asset_name: str, backend: TTSBackend) -> Path:
 
 # Target RMS loudness for TTS segments (-14 dBFS matches Spotify/Apple Podcasts spec).
 _TARGET_DBFS = -14.0
+_PEAK_CEILING_DBFS = -1.0   # headroom guard before RMS gain is applied
+_MAX_GAIN_DB = 20.0          # cap amplification so near-silent segments aren't blown up
 
 
 def _normalize_segment(seg):
-    """Normalize an AudioSegment to _TARGET_DBFS RMS. Returns unchanged if silent."""
-    from pydub import AudioSegment
+    """Normalize an AudioSegment to _TARGET_DBFS RMS with a peak ceiling guard.
+
+    Two-pass approach that fixes the progressive level-fade bug seen with
+    ElevenLabs eleven_v3 audio:
+
+    Pass 1 — peak ceiling: if any sample exceeds _PEAK_CEILING_DBFS, reduce gain
+    before the RMS step.  eleven_v3 has wide dynamic range; without this the RMS
+    normalizer applies large positive gain that causes inter-segment clipping,
+    which the subsequent MP3 encoder then compensates by lowering overall level.
+
+    Pass 2 — RMS normalization: bring the segment's average loudness to
+    _TARGET_DBFS.  A _MAX_GAIN_DB cap prevents over-amplification of
+    near-silent segments (e.g. pauses, tails).
+    """
     if seg.dBFS == float("-inf"):
         return seg
-    return seg.apply_gain(_TARGET_DBFS - seg.dBFS)
+
+    # Pass 1: peak ceiling
+    peak = seg.max_dBFS
+    if peak > _PEAK_CEILING_DBFS:
+        seg = seg.apply_gain(_PEAK_CEILING_DBFS - peak)
+
+    # Pass 2: RMS normalization
+    rms = seg.dBFS
+    if rms == float("-inf"):
+        return seg
+    gain = _TARGET_DBFS - rms
+    if gain > _MAX_GAIN_DB:
+        gain = _MAX_GAIN_DB
+    return seg.apply_gain(gain)
 
 
 def assemble_podcast(segments: list[dict], backend: TTSBackend, tmp_dir: Path) -> bytes:
