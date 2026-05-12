@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" font-family="'Helvetica Neue', Arial, sans-serif">
+  <!-- Background -->
+  <rect width="1600" height="1000" fill="#1f3a63"/>
+
+  <!-- HEAL Logo -->
+  <g transform="translate(60, 50)">
+    <rect x="0"   y="0" width="55" height="55" fill="#3aa9e0"/>
+    <rect x="60"  y="0" width="55" height="55" fill="#f6c43a"/>
+    <rect x="120" y="0" width="55" height="55" fill="#7cc242"/>
+    <rect x="180" y="0" width="55" height="55" fill="#e6447a"/>
+    <text x="27.5"  y="40" text-anchor="middle" fill="white" font-size="34" font-weight="700">H</text>
+    <text x="87.5"  y="40" text-anchor="middle" fill="white" font-size="34" font-weight="700">E</text>
+    <text x="147.5" y="40" text-anchor="middle" fill="white" font-size="34" font-weight="700">A</text>
+    <text x="207.5" y="40" text-anchor="middle" fill="white" font-size="34" font-weight="700">L</text>
+    <text x="0"   y="72" fill="#3aa9e0" font-size="10" font-weight="700" letter-spacing="1">HEALTHY</text>
+    <text x="60"  y="72" fill="#f6c43a" font-size="10" font-weight="700" letter-spacing="1">EATING</text>
+    <text x="120" y="72" fill="#7cc242" font-size="10" font-weight="700" letter-spacing="1">ACTIVE</text>
+    <text x="180" y="72" fill="#e6447a" font-size="10" font-weight="700" letter-spacing="1">LIVING</text>
+    <rect x="0" y="0" width="235" height="55" fill="none" stroke="#9aa9c2" stroke-width="1"/>
+  </g>
+
+  <!-- Title -->
+  <text x="900" y="80"  text-anchor="middle" fill="white" font-size="44" font-weight="700">Nutrition &amp; Hydration Guidelines</text>
+  <text x="900" y="130" text-anchor="middle" fill="white" font-size="44" font-weight="700">For Endurance Athletes</text>
+
+  <!-- Y-axis label -->
+  <text x="80" y="450" fill="white" font-size="26" font-weight="700" text-anchor="middle"
+        transform="rotate(-90 80 450)">Exercise Intensity</text>
+
+  <!-- Y-axis tick labels -->
+  <text x="170" y="245" fill="white" font-size="20" text-anchor="middle">Very</text>
+  <text x="170" y="270" fill="white" font-size="20" text-anchor="middle">Hard</text>
+  <text x="170" y="385" fill="white" font-size="20" text-anchor="middle">Hard</text>
+  <text x="170" y="500" fill="white" font-size="20" text-anchor="middle">Moderate</text>
+  <text x="170" y="615" fill="white" font-size="20" text-anchor="middle">Light</text>
+
+  <!-- Chart plot area reference (invisible) -->
+  <!-- Plot area: x 230..1500, y 220..680 -->
+
+  <!-- Pre Fuel box (light green) -->
+  <g>
+    <rect x="230" y="220" width="220" height="460" fill="#d6e7c6"/>
+    <text x="340" y="290" text-anchor="middle" fill="#1f3a63" font-size="32" font-weight="700">Start</text>
+    <text x="340" y="328" text-anchor="middle" fill="#1f3a63" font-size="32" font-weight="700">Fuelled</text>
+    <text x="340" y="380" text-anchor="middle" fill="#1f3a63" font-size="17">1-4g carb/kg body</text>
+    <text x="340" y="402" text-anchor="middle" fill="#1f3a63" font-size="17">weight in 1-3 hours</text>
+    <text x="340" y="424" text-anchor="middle" fill="#1f3a63" font-size="17">pre exercise. Low</text>
+    <text x="340" y="446" text-anchor="middle" fill="#1f3a63" font-size="17">fat, lower fibre</text>
+    <text x="340" y="468" text-anchor="middle" fill="#1f3a63" font-size="17">close to training</text>
+    <text x="340" y="520" text-anchor="middle" fill="#1f3a63" font-size="17">The longer the</text>
+    <text x="340" y="542" text-anchor="middle" fill="#1f3a63" font-size="17">workout the more</text>
+    <text x="340" y="564" text-anchor="middle" fill="#1f3a63" font-size="17">important this is</text>
+  </g>
+
+  <!-- Carb intake regions (curved zones) -->
+  <!-- Green: <30g/h -->
+  <path d="M 450,220
+           C 470,240 490,250 510,255
+           L 555,260
+           C 575,270 585,295 585,330
+           C 585,380 575,440 555,520
+           C 540,580 520,640 500,680
+           L 450,680 Z"
+        fill="#7cc242"/>
+  <text x="510" y="430" text-anchor="middle" fill="white" font-size="30" font-weight="700">&lt;30g/h</text>
+
+  <!-- Orange: 30g/h -->
+  <path d="M 555,260
+           C 575,255 600,250 625,250
+           C 650,250 670,255 680,265
+           C 690,290 685,330 670,380
+           C 655,440 635,530 615,620
+           C 605,660 590,680 570,680
+           L 500,680
+           C 520,640 540,580 555,520
+           C 575,440 585,380 585,330
+           C 585,295 575,270 555,260 Z"
+        fill="#ee9b3a"/>
+  <text x="615" y="430" text-anchor="middle" fill="white" font-size="30" font-weight="700">30g/h</text>
+
+  <!-- Blue: 60-90 g/h (large central region) -->
+  <path d="M 680,265
+           C 720,270 770,290 830,320
+           C 900,355 980,390 1060,415
+           L 1100,425
+           C 1100,475 1090,540 1075,610
+           C 1065,650 1050,680 1030,680
+           L 570,680
+           C 590,680 605,660 615,620
+           C 635,530 655,440 670,380
+           C 685,330 690,290 680,265 Z"
+        fill="#3a7ec0"/>
+  <text x="900" y="555" text-anchor="middle" fill="white" font-size="32" font-weight="700">60-90 g/h</text>
+
+  <!-- Pink: 90-120 g/h -->
+  <path d="M 830,320
+           C 880,300 940,285 1010,278
+           C 1100,272 1220,272 1340,275
+           C 1410,278 1470,283 1500,290
+           L 1500,440
+           C 1470,440 1410,438 1340,438
+           C 1240,438 1140,435 1060,425
+           L 1100,425
+           L 1060,415
+           C 980,390 900,355 830,320 Z"
+        fill="#e6447a"/>
+  <text x="1280" y="365" text-anchor="middle" fill="white" font-size="32" font-weight="700">90-120 g/h</text>
+
+  <!-- Hydration row (teal band along bottom of plot area) -->
+  <!-- Pre Hydrate (under Pre Fuel) -->
+  <rect x="230" y="680" width="220" height="120" fill="#bfd9d6"/>
+  <text x="340" y="720" text-anchor="middle" fill="#1f3a63" font-size="26" font-weight="700">Pre Hydrate</text>
+  <text x="340" y="755" text-anchor="middle" fill="#1f3a63" font-size="16">250-1000mL in the</text>
+  <text x="340" y="775" text-anchor="middle" fill="#1f3a63" font-size="16">1-3 hours pre</text>
+  <text x="340" y="795" text-anchor="middle" fill="#1f3a63" font-size="16">exercise</text>
+
+  <!-- Hydration band -->
+  <rect x="450" y="680" width="1050" height="120" fill="#bfd9d6"/>
+  <text x="975" y="720" text-anchor="middle" fill="#1f3a63" font-size="28" font-weight="700">Hydration</text>
+
+  <!-- Hydration column 1 (under 30 min area) -->
+  <text x="555" y="760" text-anchor="middle" fill="#1f3a63" font-size="15" font-weight="700">Fluid: 250-750mL/hr</text>
+  <text x="555" y="782" text-anchor="middle" fill="#1f3a63" font-size="15" font-weight="700">Sodium: 0-250mg/L</text>
+
+  <!-- column 2 (under 60-90 min) -->
+  <text x="765" y="760" text-anchor="middle" fill="#1f3a63" font-size="15" font-weight="700">Fluid: 250-750mL/hr</text>
+  <text x="765" y="782" text-anchor="middle" fill="#1f3a63" font-size="15" font-weight="700">Sodium: 0-500mg/L</text>
+
+  <!-- column 3 (under 2h-2.5h) -->
+  <text x="1075" y="760" text-anchor="middle" fill="#1f3a63" font-size="15" font-weight="700">Fluid: 500mL-1L/hr</text>
+  <text x="1075" y="782" text-anchor="middle" fill="#1f3a63" font-size="15" font-weight="700">Sodium: 250-1000mg/L</text>
+
+  <!-- column 4 (3h-beyond) -->
+  <text x="1355" y="760" text-anchor="middle" fill="#1f3a63" font-size="15" font-weight="700">Fluid: 500mL-1.5L/hr</text>
+  <text x="1355" y="782" text-anchor="middle" fill="#1f3a63" font-size="15" font-weight="700">Sodium: 500-1500mg/L</text>
+
+  <!-- Divider lines between hydration columns -->
+  <line x1="660"  y1="730" x2="660"  y2="800" stroke="#1f3a63" stroke-width="1" opacity="0.3"/>
+  <line x1="870"  y1="730" x2="870"  y2="800" stroke="#1f3a63" stroke-width="1" opacity="0.3"/>
+  <line x1="1220" y1="730" x2="1220" y2="800" stroke="#1f3a63" stroke-width="1" opacity="0.3"/>
+
+  <!-- X-axis tick marks and labels -->
+  <g stroke="white" stroke-width="2">
+    <line x1="340"  y1="800" x2="340"  y2="820"/>
+    <line x1="450"  y1="800" x2="450"  y2="820"/>
+    <line x1="555"  y1="800" x2="555"  y2="820"/>
+    <line x1="660"  y1="800" x2="660"  y2="820"/>
+    <line x1="765"  y1="800" x2="765"  y2="820"/>
+    <line x1="870"  y1="800" x2="870"  y2="820"/>
+    <line x1="975"  y1="800" x2="975"  y2="820"/>
+    <line x1="1080" y1="800" x2="1080" y2="820"/>
+    <line x1="1220" y1="800" x2="1220" y2="820"/>
+    <line x1="1360" y1="800" x2="1360" y2="820"/>
+  </g>
+
+  <g fill="white" font-size="20" text-anchor="middle">
+    <text x="340"  y="850">-3h</text>
+    <text x="450"  y="850">-1h</text>
+    <text x="555"  y="850">0</text>
+    <text x="660"  y="850">30 min</text>
+    <text x="765"  y="850">60 min</text>
+    <text x="870"  y="850">90 min</text>
+    <text x="975"  y="850">2h</text>
+    <text x="1080" y="850">2.5h</text>
+    <text x="1220" y="850">3h</text>
+    <text x="1360" y="850">4h</text>
+    <text x="1490" y="850">beyond --&gt;</text>
+  </g>
+
+  <!-- X-axis title -->
+  <text x="900" y="920" text-anchor="middle" fill="white" font-size="30" font-weight="700">Exercise Duration</text>
+</svg>
