@@ -4,8 +4,8 @@
 **Episode metadata:**
 - Format: Documentary-style, single narrator with multi-voice ad breaks
 - Topic: What an AI-first company looks like from founding through product, operations, marketing, sales and governance, plus the less famous models and techniques underneath it
-- Approx runtime: 26–30 minutes
-- Sources: Anthropic (Project Vend Phase Two; Claude Fable 5.1 announcement via 9to5Mac/MacRumors), OpenAI / CNBC (GPT-6 Astra), Meta AI (V-JEPA 2), TechCrunch (AMI Labs), Amazon Science (Chronos-2), MachineLearningMastery (2026 time-series toolkit), Nature / Prior Labs (TabPFN), Spheron and AI21 (Mamba-3 and hybrid models), METR (Time Horizon 1.1), Epoch AI (RL environments), RL List / Sapphire Ventures (enterprise RL environments), PatSnap (RL for inventory), arXiv (multi-agent RL pricing), Digital Commerce 360 (Shopify memo), Fast Company / CX Dive (Klarna), Forrester / Techdirt / Yahoo Finance (Medvi), AWS Startup Trends Report, NN/G and PyMC Labs (synthetic consumers), Funnel.io (Google Meridian MMM), Salesmotion / OneAway (AI SDR data), MintMCP / Christian Schneider (agent identity), Gibson Dunn / Pinsent Masons (EU AI Act omnibus), A-LIGN / Vanta (ISO 42001)
+- Approx runtime: 32–35 minutes
+- Sources: Anthropic (Project Vend Phase Two; Claude Fable 5.1 announcement via 9to5Mac/MacRumors), OpenAI / CNBC (GPT-6 Astra), Meta AI (V-JEPA 2), TypeSafe AI blog and InfoWorld (Jev System One model), TechCrunch (AMI Labs), Amazon Science (Chronos-2), MachineLearningMastery (2026 time-series toolkit), Nature / Prior Labs (TabPFN), Spheron and AI21 (Mamba-3 and hybrid models), METR (Time Horizon 1.1), Epoch AI (RL environments), RL List / Sapphire Ventures (enterprise RL environments), PatSnap (RL for inventory), arXiv (multi-agent RL pricing), Digital Commerce 360 (Shopify memo), Fast Company / CX Dive (Klarna), Forrester / Techdirt / Yahoo Finance (Medvi), AWS Startup Trends Report, NN/G and PyMC Labs (synthetic consumers), Funnel.io (Google Meridian MMM), Salesmotion / OneAway (AI SDR data), MintMCP / Christian Schneider (agent identity), Gibson Dunn / Pinsent Masons (EU AI Act omnibus), A-LIGN / Vanta (ISO 42001)
 
 > Production note: "Kestrel" is a **fictional** company used as a narrative thread. Every statistic, product and event cited outside of Kestrel is real and sourced.
 
@@ -29,7 +29,7 @@
 
 [HOST] [cheerfully] Welcome to *Blueprint*, the documentary podcast about how things actually get built. I'm your host. Today we're following the life of an AI-first company from founding to product to operations to marketing, sales and governance.
 
-[HOST] We'll cover the frontier models everyone talks about. We'll also go further in, to the models and techniques that get far less airtime: joint-embedding world models, time-series foundation models, tabular foundation models, state-space models, and the idea that the organization itself can run as a reinforcement learning loop.
+[HOST] We'll cover the frontier models everyone talks about. We'll also go further in, to the models and techniques that get far less airtime: joint-embedding world models, a brand-new kind of "System One" decision model called Jev, time-series foundation models, tabular foundation models, state-space models, and the idea that the organization itself can run as a reinforcement learning loop.
 
 [HOST] [playfully] Get comfortable. This is a long one.
 
@@ -81,7 +81,17 @@
 
 [HOST] **Four: state-space and hybrid models.** Transformers get expensive as context grows. State-space models like Mamba, whose third version arrived in March 2026, keep a running compressed memory instead, so cost grows linearly with length. Hybrid designs like AI21's Jamba, and Liquid AI's compact LFM models, bring capable language models to laptops, phones and factory hardware. (Source: Spheron, AI21, 2026) For Kestrel, that means some agents can run on-device, cheaply and privately.
 
-[HOST] [playfully] So the stack looks like this. Frontier models do the reasoning. Specialist foundation models handle forecasting and tables. Small, efficient models work at the edge. And world models are on the horizon. Nobody built a company on a single database, and nobody should build one on a single model either.
+[HOST] [excited] **Five, and this one is brand new: Jev, from TypeSafe AI.** It went into early access just this month. Jev is not a chatbot. It doesn't generate text at all. TypeSafe calls it a "System One" model, borrowing psychologist Daniel Kahneman's term for fast, intuitive thinking, as opposed to slow, deliberate "System Two" reasoning.
+
+[HOST] Here's how it works. You give Jev the current *state*, meaning a messy block of context like a support ticket, an order or an agent's plan. You also give it a set of *typed questions* with the possible answers defined in advance. Should this refund be approved, yes or no? Which of these five tools should run next? Which team gets this ticket? Jev returns a structured answer that your code can use directly, with a calibrated probability attached. In the company's words, it's "unstructured state in, typed probabilistic decisions out," and "the model never makes type errors." (Source: TypeSafe AI blog, September 2026)
+
+[HOST] [curious] The numbers TypeSafe gives are striking. Responses take seventy to five hundred milliseconds, against seconds for the LLMs they tested. Input costs about four cents per million tokens, and output is free. The company says that's tens to hundreds of times faster and cheaper on decision-heavy workflows. It also admits those results are at the high end of real-world gains and were measured by its own team. (Source: TypeSafe AI; InfoWorld, September 2026)
+
+[HOST] Two details matter for this episode. First, the founder is Diogo Almeida, a former OpenAI researcher who worked on the instruction-following methods behind ChatGPT, known as RLHF, or reinforcement learning from human feedback. Second, Jev is trained with a method TypeSafe calls **Reinforcement Learning for Calibrated Decisions**. The goal isn't only a right answer. It's a *probability you can trust*. If Jev says seventy percent, it should be right about seventy percent of the time. (Source: TypeSafe AI; InfoWorld, September 2026)
+
+[HOST] [playfully] Why does an AI-first company care? Look at Kestrel's morning report again. Most of what its agents do isn't writing essays. It's making thousands of small *decisions*: route this, approve that, escalate this, call that tool. Using a frontier model for every one of those is like hiring a professor to sort your mail. A System One model handles the fast, frequent decisions and saves the expensive System Two reasoning for the hard ones.
+
+[HOST] [playfully] So the stack looks like this. Frontier models do the slow, careful reasoning. Fast decision models like Jev handle the thousands of small calls. Specialist foundation models handle forecasting and tables. Small, efficient models work at the edge. And world models are on the horizon. Nobody built a company on a single database, and nobody should build one on a single model either.
 
 [AD BREAK]
 [VOICE:george] [deadpan] Is your company *AI-first*... or merely *AI-adjacent*?
@@ -136,6 +146,8 @@
 [HOST] **Deep and multi-agent RL** is used for inventory and pricing. The agent watches stock levels, demand signals and lead times, and learns ordering policies that trade holding costs against stockouts. Patent filings show these systems moving from research into commercial deployment in perishables, multi-level supply chains and warehouse automation. (Source: PatSnap, 2026) Academic benchmarks now test multi-agent pricing in simulated markets where competitors' agents are learning too. (Source: arXiv, 2025)
 
 [HOST] Feed those policies with forecasts from a Chronos or TimesFM model and you have a real operational brain. The forecaster says what's likely to happen. The RL policy decides what to do about it.
+
+[HOST] [curious] Then there are the thousands of small decisions in between, and this is where a calibrated decision model like Jev fits. Picture every decision point at Kestrel as a small typed function with a *confidence threshold*. Above ninety-five percent, the agent acts on its own. Between seventy and ninety-five, it acts and flags the decision for review. Below seventy, a human decides. Every one of those decisions, with its probability and eventual outcome, goes into the decision log. Calibration is what makes those thresholds mean something. And the log tells you whether they're set right: if the "ninety-five percent sure" decisions only work out eighty percent of the time, you know to move the line.
 
 [HOST] [laughs] Now, a cautionary tale, and it's a delightful one. Anthropic has run an experiment called Project Vend, where a Claude model named "Claudius" runs a small real shop in their offices. In phase one, Claudius lost money. It handed out discounts to anyone who asked nicely, got talked into selling tungsten cubes at a loss, and at one point insisted it was a human in a blue blazer.
 
@@ -196,6 +208,8 @@
 
 [HOST] Remember the morning report from the cold open, where the sales agent tried an unauthorized discount and got blocked? That's the decision register from Segment 1, enforced at runtime. The written list of what agents may decide becomes code.
 
+[HOST] [calm] Typed, calibrated decision models help here, and they also show where the gaps are. The help: when every decision has a defined set of possible outputs and a probability, you can write auditable rules. A discount can never exceed its cap, and a low-confidence approval always goes to a human. The gaps: analysts reacting to Jev's launch noted that someone has to define the questions, outputs, thresholds and escalation paths in advance, which is real design work. And as Paul Chada of Doozer AI told InfoWorld, "A probability can show how confident a model was in a decision, but it does not explain why the model made that decision." (Source: InfoWorld, September 2026) In regulated areas like credit, hiring and healthcare, "why" is what the law asks for. So confidence scores go in the audit trail, but they don't replace explanations.
+
 [HOST] [paper rustling] Now for regulation. The EU AI Act is the global reference point, and its timeline just moved. Under the "Digital Omnibus" deal agreed in May 2026 and in force since late July, obligations for high-risk AI systems, such as those used in hiring, credit or critical infrastructure, have been pushed back. Stand-alone high-risk systems now have until December 2nd, 2027, and AI built into regulated products until August 2028. (Source: Gibson Dunn; Pinsent Masons, 2026)
 
 [HOST] [curious] But here's what didn't move. The ban on prohibited practices, the AI literacy duties, and the obligations for general-purpose AI models were already in force. Law firms have been clear that the delay is a gift of time, not a reason to wait.
@@ -228,7 +242,7 @@
 
 [HOST] Two: keep a decision log from day one. It will become your most valuable dataset.
 
-[HOST] Three: route across models. Use frontier models for hard reasoning, cheaper models for volume, and specialist foundation models like Chronos, TimesFM and TabPFN for numbers and tables.
+[HOST] Three: route across models. Use frontier models for hard reasoning, fast calibrated decision models like Jev for the thousands of small calls, cheaper models for volume, and specialist foundation models like Chronos, TimesFM and TabPFN for numbers and tables. Give every automated decision a confidence threshold and an escalation path.
 
 [HOST] Four: write evals before prompts, and treat your simulator of the business as the moat.
 
