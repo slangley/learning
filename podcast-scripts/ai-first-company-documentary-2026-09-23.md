@@ -1,14 +1,6 @@
 # Blueprint: Anatomy of an AI-First Company
 ## A Documentary Episode — From Inception to Governance
 
-**Episode metadata:**
-- Format: Documentary-style, single narrator with multi-voice ad breaks
-- Topic: What an AI-first company looks like from founding through product, operations, marketing, sales and governance, plus the less famous models and techniques underneath it
-- Approx runtime: 32–35 minutes
-- Sources: Anthropic (Project Vend Phase Two; Claude Fable 5.1 announcement via 9to5Mac/MacRumors), OpenAI / CNBC (GPT-6 Astra), Meta AI (V-JEPA 2), TypeSafe AI blog and InfoWorld (Jev System One model), TechCrunch (AMI Labs), Amazon Science (Chronos-2), MachineLearningMastery (2026 time-series toolkit), Nature / Prior Labs (TabPFN), Spheron and AI21 (Mamba-3 and hybrid models), METR (Time Horizon 1.1), Epoch AI (RL environments), RL List / Sapphire Ventures (enterprise RL environments), PatSnap (RL for inventory), arXiv (multi-agent RL pricing), Digital Commerce 360 (Shopify memo), Fast Company / CX Dive (Klarna), Forrester / Techdirt / Yahoo Finance (Medvi), AWS Startup Trends Report, NN/G and PyMC Labs (synthetic consumers), Funnel.io (Google Meridian MMM), Salesmotion / OneAway (AI SDR data), MintMCP / Christian Schneider (agent identity), Gibson Dunn / Pinsent Masons (EU AI Act omnibus), A-LIGN / Vanta (ISO 42001)
-
-> Production note: "Kestrel" is a **fictional** company used as a narrative thread. Every statistic, product and event cited outside of Kestrel is real and sourced.
-
 ---
 
 [MUSIC - INTRO]
@@ -261,3 +253,15 @@
 [HOST] [laughs] See you next time on *Blueprint*.
 
 [MUSIC - OUTRO]
+
+---
+
+## Sources
+
+**Episode metadata:**
+- Format: Documentary-style, single narrator with multi-voice ad breaks
+- Topic: What an AI-first company looks like from founding through product, operations, marketing, sales and governance, plus the less famous models and techniques underneath it
+- Approx runtime: 32–35 minutes
+- Sources: Anthropic (Project Vend Phase Two; Claude Fable 5.1 announcement via 9to5Mac/MacRumors), OpenAI / CNBC (GPT-6 Astra), Meta AI (V-JEPA 2), TypeSafe AI blog and InfoWorld (Jev System One model), TechCrunch (AMI Labs), Amazon Science (Chronos-2), MachineLearningMastery (2026 time-series toolkit), Nature / Prior Labs (TabPFN), Spheron and AI21 (Mamba-3 and hybrid models), METR (Time Horizon 1.1), Epoch AI (RL environments), RL List / Sapphire Ventures (enterprise RL environments), PatSnap (RL for inventory), arXiv (multi-agent RL pricing), Digital Commerce 360 (Shopify memo), Fast Company / CX Dive (Klarna), Forrester / Techdirt / Yahoo Finance (Medvi), AWS Startup Trends Report, NN/G and PyMC Labs (synthetic consumers), Funnel.io (Google Meridian MMM), Salesmotion / OneAway (AI SDR data), MintMCP / Christian Schneider (agent identity), Gibson Dunn / Pinsent Masons (EU AI Act omnibus), A-LIGN / Vanta (ISO 42001)
+
+> Production note: "Kestrel" is a **fictional** company used as a narrative thread. Every statistic, product and event cited outside of Kestrel is real and sourced.
